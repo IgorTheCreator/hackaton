@@ -139,11 +139,12 @@ export class AuthService {
         userAgent
       },
       select: {
-        token: true
+        token: true,
+        expiresAt: true
       }
     })
 
-    return newRefreshToken.token
+    return newRefreshToken
   }
 
   async logout(refreshToken: string) {

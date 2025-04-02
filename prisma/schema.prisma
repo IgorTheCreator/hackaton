@@ -12,10 +12,11 @@ model User {
   email        String         @unique
   username     String         @unique
   password     String
-  RefreshToken RefreshToken[]
+  refreshToken RefreshToken[]
   role         Role           @default(USER)
-  createdAt    DateTime?      @default(now()) @map("created_at")
-  updatedAt    DateTime?      @updatedAt @map("updated_at")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  isBanned     Boolean        @default(false)
 
   @@map("users")
 }
@@ -27,7 +28,7 @@ enum Role {
 
 model RefreshToken {
   token     String    @unique @default(uuid())
-  expiresAt DateTime?
+  expiresAt DateTime
   userAgent String    @map("user_agent")
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")

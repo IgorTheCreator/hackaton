@@ -9,6 +9,7 @@ export class ConfigService {
   readonly CACHE_HOST: string
   readonly CACHE_PASSWORD: string
   readonly JWT_SECRET_KEY: string
+  readonly JWT_TOKEN_VALID: string
   readonly REFRESH_TOKEN_VALID_DAYS: number
 
   constructor(private readonly config: NestJsConfigService) {
@@ -20,6 +21,7 @@ export class ConfigService {
     this.CACHE_PASSWORD = this.config.getOrThrow<string>('CACHE_PASSWORD');
 
     this.JWT_SECRET_KEY = this.config.getOrThrow<string>('JWT_SECRET_KEY');
+    this.JWT_TOKEN_VALID = this.config.getOrThrow<string>('JWT_TOKEN_VALID')
     this.REFRESH_TOKEN_VALID_DAYS = this.config.getOrThrow<number>('REFRESH_TOKEN_VALID_DAYS');
   }
 }

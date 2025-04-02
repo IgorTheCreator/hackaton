@@ -9,17 +9,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { UtilsModule } from './shared/utils/utils.module';
-import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard, RolesGuard } from './modules/auth/guards';
 @Module({
   imports: [
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET_KEY,
-      signOptions: {
-        expiresIn: process.env.JWT_TOKEN_VALID
-      }
-    }),
     LoggerModule.forRoot({
       pinoHttp: {
         transport: process.stdout.isTTY ? {
@@ -31,7 +23,6 @@ import { JwtAuthGuard, RolesGuard } from './modules/auth/guards';
     PrismaModule,
     AuthModule,
     UtilsModule,
-    JwtModule
   ],
   controllers: [AppController],
   providers: [
