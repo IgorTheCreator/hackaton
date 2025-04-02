@@ -11,6 +11,9 @@ import { ConfigService } from './core/config/config.service'
 async function build() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
     bufferLogs: true,
+    cors: {
+      origin: '*'
+    }
   })
   await app.register(fastifyHelmet)
   await app.register(fastifyCookie)
