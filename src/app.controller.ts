@@ -1,16 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
-import { Public, Roles, User } from './shared/decorators';
-import { IPayload } from './shared/interfaces';
+import { Controller, Get } from '@nestjs/common'
+import { AppService } from './app.service'
+import { Public, Roles, User } from './shared/decorators'
+import { IPayload } from './shared/interfaces'
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @Get('ping')
   @Public()
   ping(): string {
-    return this.appService.ping();
+    return this.appService.ping()
   }
 
   @Get('test')

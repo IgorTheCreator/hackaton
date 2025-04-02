@@ -1,29 +1,36 @@
 import { randomUUID } from 'node:crypto'
-import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
-import { PrismaService } from 'src/core/prisma/prisma.service';
-import { CredentialsDto } from './auth.dto';
-import { UtilsService } from 'src/shared/utils/utils.service';
-import { ConfigService } from 'src/core/config/config.service';
-import { IPayload } from 'src/shared/interfaces';
-import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common'
+import { PrismaService } from 'src/core/prisma/prisma.service'
+import { CredentialsDto } from './auth.dto'
+import { UtilsService } from 'src/shared/utils/utils.service'
+import { ConfigService } from 'src/core/config/config.service'
+import { IPayload } from 'src/shared/interfaces'
+import { JwtService } from '@nestjs/jwt'
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
+  private readonly logger = new Logger(AuthService.name)
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly config: ConfigService,
-    private readonly jwt: JwtService
-  ) { }
+    private readonly jwt: JwtService,
+  ) {}
 
   async signup({ email, password }: CredentialsDto) {
     try {
       const existingUser = await this.prisma.user.findUnique({
         where: {
           email,
-        }
+        },
       })
       if (existingUser) {
         throw new ConflictException('User already exists')
@@ -37,7 +44,7 @@ export class AuthService {
         },
         select: {
           id: true,
-        }
+        },
       })
       return { id }
     } catch (e) {
@@ -57,7 +64,7 @@ export class AuthService {
           id: true,
           password: true,
           role: true,
-        }
+        },
       })
       if (!existingUser) {
         throw new BadRequestException('Invalid credentials')
@@ -68,7 +75,10 @@ export class AuthService {
       }
       const payload: IPayload = { id: existingUser.id, role: existingUser.role }
       const accessToken = await this.jwt.signAsync(payload)
-      const refreshToken = await this.getRefreshToken(existingUser.id, userAgent)
+      const refreshToken = await this.getRefreshToken(
+        existingUser.id,
+        userAgent,
+      )
       return { accessToken, refreshToken }
     } catch (e) {
       this.logger.error(e)
@@ -87,10 +97,10 @@ export class AuthService {
           userId: true,
           user: {
             select: {
-              role: true
-            }
-          }
-        }
+              role: true,
+            },
+          },
+        },
       })
       if (!token) {
         throw new BadRequestException('Invalid refresh token')
@@ -98,9 +108,12 @@ export class AuthService {
       await this.prisma.refreshToken.delete({
         where: {
           token: refreshToken,
-        }
+        },
       })
-      const newRefreshToken = await this.getRefreshToken(token.userId, userAgent)
+      const newRefreshToken = await this.getRefreshToken(
+        token.userId,
+        userAgent,
+      )
 
       const payload = { id: token.userId, role: token.user.role }
       const accessToken = await this.jwt.signAsync(payload)
@@ -116,44 +129,50 @@ export class AuthService {
     const _token = await this.prisma.refreshToken.findFirst({
       where: {
         userId,
-        userAgent
-      }
+        userAgent,
+      },
     })
-    const token = _token?.token ?? '';
+    const token = _token?.token ?? ''
     const newRefreshToken = await this.prisma.refreshToken.upsert({
       where: {
-        token
+        token,
       },
       update: {
         token: randomUUID(),
         expiresAt: new Date(
-          new Date().setDate(new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS)
-        ).toISOString()
+          new Date().setDate(
+            new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS,
+          ),
+        ).toISOString(),
       },
       create: {
         token: randomUUID(),
         expiresAt: new Date(
-          new Date().setDate(new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS)
+          new Date().setDate(
+            new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS,
+          ),
         ).toISOString(),
         userId,
-        userAgent
+        userAgent,
       },
       select: {
         token: true,
-        expiresAt: true
-      }
+        expiresAt: true,
+      },
     })
 
     return newRefreshToken
   }
 
   async logout(refreshToken: string) {
-    await this.prisma.refreshToken.delete({
-      where: {
-        token: refreshToken,
-      }
-    }).catch(() => {
-      this.logger.log('Refresh token not found')
-    })
+    await this.prisma.refreshToken
+      .delete({
+        where: {
+          token: refreshToken,
+        },
+      })
+      .catch(() => {
+        this.logger.log('Refresh token not found')
+      })
   }
 }
