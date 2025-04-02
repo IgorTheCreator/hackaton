@@ -25,10 +25,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Body() body: CredentialsDto,
   ) {
-    const { accessToken, refreshToken } = await this.authService.signin(
-      body,
-      userAgent,
-    )
+    const { accessToken, refreshToken } = await this.authService.signin(body, userAgent)
     res.setCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken.token, {
       httpOnly: true,
       path: '/',
@@ -45,10 +42,7 @@ export class AuthController {
     @RefreshToken() cookieToken: string,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const { accessToken, refreshToken } = await this.authService.refresh(
-      cookieToken,
-      userAgent,
-    )
+    const { accessToken, refreshToken } = await this.authService.refresh(cookieToken, userAgent)
     res.setCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken.token, {
       httpOnly: true,
       path: '/',
@@ -59,10 +53,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  logout(
-    @Res({ passthrough: true }) reply: FastifyReply,
-    @RefreshToken() cookieToken: string,
-  ) {
+  logout(@Res({ passthrough: true }) reply: FastifyReply, @RefreshToken() cookieToken: string) {
     reply.clearCookie(REFRESH_TOKEN_COOKIE_NAME)
     return this.authService.logout(cookieToken)
   }

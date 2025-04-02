@@ -22,8 +22,6 @@ export class ConfigService {
 
     this.JWT_SECRET_KEY = this.config.getOrThrow<string>('JWT_SECRET_KEY')
     this.JWT_TOKEN_VALID = this.config.getOrThrow<string>('JWT_TOKEN_VALID')
-    this.REFRESH_TOKEN_VALID_DAYS = this.config.getOrThrow<number>(
-      'REFRESH_TOKEN_VALID_DAYS',
-    )
+    this.REFRESH_TOKEN_VALID_DAYS = this.config.getOrThrow<number>('REFRESH_TOKEN_VALID_DAYS')
   }
 }

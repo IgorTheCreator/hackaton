@@ -75,10 +75,7 @@ export class AuthService {
       }
       const payload: IPayload = { id: existingUser.id, role: existingUser.role }
       const accessToken = await this.jwt.signAsync(payload)
-      const refreshToken = await this.getRefreshToken(
-        existingUser.id,
-        userAgent,
-      )
+      const refreshToken = await this.getRefreshToken(existingUser.id, userAgent)
       return { accessToken, refreshToken }
     } catch (e) {
       this.logger.error(e)
@@ -110,10 +107,7 @@ export class AuthService {
           token: refreshToken,
         },
       })
-      const newRefreshToken = await this.getRefreshToken(
-        token.userId,
-        userAgent,
-      )
+      const newRefreshToken = await this.getRefreshToken(token.userId, userAgent)
 
       const payload = { id: token.userId, role: token.user.role }
       const accessToken = await this.jwt.signAsync(payload)
@@ -140,17 +134,13 @@ export class AuthService {
       update: {
         token: randomUUID(),
         expiresAt: new Date(
-          new Date().setDate(
-            new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS,
-          ),
+          new Date().setDate(new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS),
         ).toISOString(),
       },
       create: {
         token: randomUUID(),
         expiresAt: new Date(
-          new Date().setDate(
-            new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS,
-          ),
+          new Date().setDate(new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS),
         ).toISOString(),
         userId,
         userAgent,

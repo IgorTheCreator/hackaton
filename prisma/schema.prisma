@@ -27,11 +27,11 @@ enum Role {
 }
 
 model RefreshToken {
-  token     String    @unique @default(uuid())
+  token     String   @unique @default(uuid())
   expiresAt DateTime
-  userAgent String    @map("user_agent")
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  userAgent String   @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
