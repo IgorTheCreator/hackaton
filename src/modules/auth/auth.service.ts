@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { add } from 'date-fns'
 import {
   BadRequestException,
   ConflictException,
@@ -23,7 +24,7 @@ export class AuthService {
     private readonly utils: UtilsService,
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
-  ) {}
+  ) { }
 
   async signup({ email, password }: CredentialsDto) {
     try {
@@ -89,6 +90,9 @@ export class AuthService {
       const token = await this.prisma.refreshToken.findUnique({
         where: {
           token: refreshToken,
+          expiresAt: {
+            gte: new Date()
+          }
         },
         select: {
           userId: true,
@@ -133,15 +137,11 @@ export class AuthService {
       },
       update: {
         token: randomUUID(),
-        expiresAt: new Date(
-          new Date().setDate(new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS),
-        ).toISOString(),
+        expiresAt: add(new Date(), { days: this.config.REFRESH_TOKEN_VALID_DAYS }),
       },
       create: {
         token: randomUUID(),
-        expiresAt: new Date(
-          new Date().setDate(new Date().getDate() + this.config.REFRESH_TOKEN_VALID_DAYS),
-        ).toISOString(),
+        expiresAt: add(new Date(), { days: this.config.REFRESH_TOKEN_VALID_DAYS }),
         userId,
         userAgent,
       },
