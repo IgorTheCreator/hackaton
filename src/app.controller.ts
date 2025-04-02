@@ -5,7 +5,7 @@ import { IPayload } from './shared/interfaces'
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   @Get('ping')
   @Public()
@@ -14,7 +14,7 @@ export class AppController {
   }
 
   @Get('test')
-  @Roles('ADMIN', 'USER')
+  @Roles('ADMIN')
   test(@User() user: IPayload) {
     return user
   }

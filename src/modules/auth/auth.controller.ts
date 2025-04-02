@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { CredentialsDto } from './auth.dto'
 import { FastifyReply } from 'fastify'
@@ -8,7 +8,7 @@ export const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken'
 
 @Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   // Регистрация
   @Public()
@@ -53,6 +53,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) reply: FastifyReply, @RefreshToken() cookieToken: string) {
     reply.clearCookie(REFRESH_TOKEN_COOKIE_NAME)
     return this.authService.logout(cookieToken)
