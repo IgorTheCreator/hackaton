@@ -27,100 +27,82 @@ export class AuthService {
   ) { }
 
   async signup({ email, password }: CredentialsDto) {
-    try {
-      const existingUser = await this.prisma.user.findUnique({
-        where: {
-          email,
-        },
-      })
-      if (existingUser) {
-        throw new ConflictException('User already exists')
-      }
-      const hashedPassword = await this.utils.hashData(password)
-      const { id } = await this.prisma.user.create({
-        data: {
-          email,
-          username: email,
-          password: hashedPassword,
-        },
-        select: {
-          id: true,
-        },
-      })
-      return { id }
-    } catch (e) {
-      this.logger.error(e)
-      if (e instanceof HttpException) throw e
-      throw new InternalServerErrorException('Something went wrong')
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    })
+    if (existingUser) {
+      throw new ConflictException('User already exists')
     }
+    const hashedPassword = await this.utils.hashData(password)
+    const { id } = await this.prisma.user.create({
+      data: {
+        email,
+        username: email,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+      },
+    })
+    return { id }
   }
 
   async signin({ email, password }: CredentialsDto, userAgent: string) {
-    try {
-      const existingUser = await this.prisma.user.findUnique({
-        where: {
-          email,
-        },
-        select: {
-          id: true,
-          password: true,
-          role: true,
-        },
-      })
-      if (!existingUser) {
-        throw new BadRequestException('Invalid credentials')
-      }
-      const isValid = await this.utils.compare(password, existingUser.password)
-      if (!isValid) {
-        throw new BadRequestException('Invalid credentials')
-      }
-      const payload: IPayload = { id: existingUser.id, role: existingUser.role }
-      const accessToken = await this.jwt.signAsync(payload)
-      const refreshToken = await this.getRefreshToken(existingUser.id, userAgent)
-      return { accessToken, refreshToken }
-    } catch (e) {
-      this.logger.error(e)
-      if (e instanceof HttpException) throw e
-      throw new InternalServerErrorException('Something went wrong')
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        password: true,
+        role: true,
+      },
+    })
+    if (!existingUser) {
+      throw new BadRequestException('Invalid credentials')
     }
+    const isValid = await this.utils.compare(password, existingUser.password)
+    if (!isValid) {
+      throw new BadRequestException('Invalid credentials')
+    }
+    const payload: IPayload = { id: existingUser.id, role: existingUser.role }
+    const accessToken = await this.jwt.signAsync(payload)
+    const refreshToken = await this.getRefreshToken(existingUser.id, userAgent)
+    return { accessToken, refreshToken }
   }
 
   async refresh(refreshToken: string, userAgent: string) {
-    try {
-      const token = await this.prisma.refreshToken.findUnique({
-        where: {
-          token: refreshToken,
-          expiresAt: {
-            gte: new Date()
-          }
-        },
-        select: {
-          userId: true,
-          user: {
-            select: {
-              role: true,
-            },
+    const token = await this.prisma.refreshToken.findUnique({
+      where: {
+        token: refreshToken,
+        expiresAt: {
+          gte: new Date()
+        }
+      },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            role: true,
           },
         },
-      })
-      if (!token) {
-        throw new BadRequestException('Invalid refresh token')
-      }
-      await this.prisma.refreshToken.delete({
-        where: {
-          token: refreshToken,
-        },
-      })
-      const newRefreshToken = await this.getRefreshToken(token.userId, userAgent)
-
-      const payload = { id: token.userId, role: token.user.role }
-      const accessToken = await this.jwt.signAsync(payload)
-      return { accessToken, refreshToken: newRefreshToken }
-    } catch (e) {
-      this.logger.error(e)
-      if (e instanceof HttpException) throw e
-      throw new InternalServerErrorException('Something went wrong')
+      },
+    })
+    if (!token) {
+      throw new BadRequestException('Invalid refresh token')
     }
+    await this.prisma.refreshToken.delete({
+      where: {
+        token: refreshToken,
+      },
+    })
+    const newRefreshToken = await this.getRefreshToken(token.userId, userAgent)
+
+    const payload = { id: token.userId, role: token.user.role }
+    const accessToken = await this.jwt.signAsync(payload)
+    return { accessToken, refreshToken: newRefreshToken }
   }
 
   async getRefreshToken(userId: string, userAgent: string) {
@@ -162,7 +144,7 @@ export class AuthService {
         },
       })
       .catch(() => {
-        this.logger.log('Refresh token not found')
+        this.logger.warn('Refresh token not found')
       })
   }
 }
