@@ -16,11 +16,19 @@ export class AuthController {
   // Регистрация
   @Public()
   @Post('signup')
-  signup(
+  async signup(
     @UserAgent() userAgent: string,
-    @Body() body: CredentialsDto
+    @Res({ passthrough: true }) res: FastifyReply,
+    @Body() body: CredentialsDto,
   ) {
-    return this.authService.signup(body, userAgent)
+    const { accessToken, refreshToken } = await this.authService.signup(body, userAgent)
+    res.setCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken.token, {
+      httpOnly: true,
+      path: '/',
+      sameSite: true,
+      expires: refreshToken.expiresAt,
+    })
+    return { accessToken }
   }
 
   // Авторизация
@@ -67,6 +75,6 @@ export class AuthController {
     @AccessToken() accessToken: string
   ) {
     reply.clearCookie(REFRESH_TOKEN_COOKIE_NAME)
-    return this.authService.logout(user.sessionId, accessToken, cookieToken)
+    return this.authService.logout(accessToken, cookieToken)
   }
 }

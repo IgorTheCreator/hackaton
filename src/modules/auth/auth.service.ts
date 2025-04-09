@@ -38,7 +38,7 @@ export class AuthService {
       throw new ConflictException('User already exists')
     }
     const hashedPassword = await this.utils.hashData(password)
-    const { id } = await this.prisma.user.create({
+    await this.prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -68,7 +68,7 @@ export class AuthService {
     if (!isValid) {
       throw new BadRequestException('Invalid credentials')
     }
-    const payload: IPayload = { id: existingUser.id, role: existingUser.role, sessionId: `${existingUser.id}-${Date.now()}` }
+    const payload: IPayload = { id: existingUser.id, role: existingUser.role }
     const accessToken = await this.jwt.signAsync(payload)
     const refreshToken = await this.getRefreshToken(existingUser.id, userAgent)
     return { accessToken, refreshToken }
@@ -137,8 +137,8 @@ export class AuthService {
     return newRefreshToken
   }
 
-  async logout(sessionId: string, accessToken: string, refreshToken: string) {
-    this.cacheInMemoryService.cache.set(accessToken, sessionId)
+  async logout(accessToken: string, refreshToken: string) {
+    this.cacheInMemoryService.cache.set(accessToken, accessToken)
     await this.prisma.refreshToken
       .delete({
         where: {
