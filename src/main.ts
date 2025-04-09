@@ -16,7 +16,7 @@ async function build() {
   await app.register(fastifyHelmet)
   await app.register(fastifyCookie)
   const config = new DocumentBuilder()
-    .addBasicAuth()
+    .addBearerAuth()
     .build()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('docs', app, documentFactory)
