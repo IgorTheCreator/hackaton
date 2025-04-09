@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, HttpCode, HttpStatus, Post, Res, UnauthorizedException, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { CredentialsDto } from './auth.dto'
 import { FastifyReply } from 'fastify'
@@ -56,6 +56,9 @@ export class AuthController {
     @RefreshToken() cookieToken: string,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
+    if (!cookieToken) {
+      throw new UnauthorizedException()
+    }
     const { accessToken, refreshToken } = await this.authService.refresh(cookieToken, userAgent)
     res.setCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken.token, {
       httpOnly: true,
