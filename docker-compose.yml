@@ -14,8 +14,33 @@ services:
     networks:
       - app_network
 
+  server:
+    build: .
+    container_name: server
+    restart: always
+   
+    networks:
+      - app_network
+
+    ports:
+      - ${APP_PORT}:3000
+    environment:
+      - APP_PORT=${APP_PORT}
+      - APP_HOST=${APP_HOST}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_TOKEN_VALID=${JWT_TOKEN_VALID}
+      - REFRESH_TOKEN_VALID_DAYS=${REFRESH_TOKEN_VALID_DAYS}
+
+    depends_on:
+      - test_db
+
+    volumes:
+      - server:/data/app
+
 volumes:
   data_db:
+  server:
 
 networks:
   app_network:

@@ -5,7 +5,6 @@ import { patchNestJsSwagger } from 'nestjs-zod'
 import * as fastifyHelmet from '@fastify/helmet'
 import * as fastifyCookie from '@fastify/cookie'
 import { AppModule } from './app.module'
-import { ConfigService } from './core/config/config.service'
 
 async function build() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
@@ -28,7 +27,6 @@ async function build() {
 
 async function bootstrap() {
   const app = await build()
-  const config = app.get(ConfigService)
-  await app.listen(config.APP_PORT, config.APP_HOST)
+  await app.listen(3000, '0.0.0.0')
 }
 bootstrap()
