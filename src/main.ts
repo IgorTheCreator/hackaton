@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { patchNestJsSwagger } from 'nestjs-zod'
-import * as fastifyHelmet from '@fastify/helmet'
+// import * as fastifyHelmet from '@fastify/helmet'
 import * as fastifyCookie from '@fastify/cookie'
 import { AppModule } from './app.module'
 
@@ -12,7 +12,7 @@ async function build() {
       origin: '*'
     }
   })
-  await app.register(fastifyHelmet)
+  // await app.register(fastifyHelmet)
   await app.register(fastifyCookie)
   const config = new DocumentBuilder()
     .addBearerAuth()
