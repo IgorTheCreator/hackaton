@@ -28,7 +28,7 @@ export class AuthService {
     private readonly cacheInMemoryService: CacheInMemoryService
   ) { }
 
-  async signup({ email, password }: CredentialsDto) {
+  async signup({ email, password }: CredentialsDto, userAgent: string) {
     const existingUser = await this.prisma.user.findUnique({
       where: {
         email,
@@ -47,7 +47,7 @@ export class AuthService {
         id: true,
       },
     })
-    return { id }
+    return this.signin({ email, password }, userAgent)
   }
 
   async signin({ email, password }: CredentialsDto, userAgent: string) {

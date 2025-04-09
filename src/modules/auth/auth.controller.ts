@@ -14,8 +14,11 @@ export class AuthController {
   // Регистрация
   @Public()
   @Post('signup')
-  signup(@Body() body: CredentialsDto) {
-    return this.authService.signup(body)
+  signup(
+    @UserAgent() userAgent: string,
+    @Body() body: CredentialsDto
+  ) {
+    return this.authService.signup(body, userAgent)
   }
 
   // Авторизация
