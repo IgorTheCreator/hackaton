@@ -8,13 +8,11 @@ import { AppModule } from './app.module'
 async function build() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
     cors: {
-      origin: '*'
-    }
+      origin: '*',
+    },
   })
   await app.register(fastifyCookie)
-  const config = new DocumentBuilder()
-    .addBearerAuth()
-    .build()
+  const config = new DocumentBuilder().addBearerAuth().build()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('docs', app, documentFactory)
   patchNestJsSwagger()

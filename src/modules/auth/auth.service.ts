@@ -1,13 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { add } from 'date-fns'
-import {
-  BadRequestException,
-  ConflictException,
-  HttpException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common'
+import { BadRequestException, ConflictException, Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from 'src/core/prisma/prisma.service'
 import { CredentialsDto } from './auth.dto'
 import { UtilsService } from 'src/shared/utils/utils.service'
@@ -25,8 +18,8 @@ export class AuthService {
     private readonly utils: UtilsService,
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
-    private readonly cacheInMemoryService: CacheInMemoryService
-  ) { }
+    private readonly cacheInMemoryService: CacheInMemoryService,
+  ) {}
 
   async signup({ email, password }: CredentialsDto, userAgent: string) {
     const existingUser = await this.prisma.user.findUnique({
@@ -79,8 +72,8 @@ export class AuthService {
       where: {
         token: refreshToken,
         expiresAt: {
-          gte: new Date()
-        }
+          gte: new Date(),
+        },
       },
       select: {
         userId: true,
@@ -148,5 +141,6 @@ export class AuthService {
       .catch(() => {
         this.logger.warn('Refresh token not found')
       })
+    return { success: true }
   }
 }
