@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import { Module } from '@nestjs/common'
-import { LoggerModule } from 'nestjs-pino'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { ConfigModule } from './core/config/config.module'
@@ -10,21 +9,14 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { UtilsModule } from './shared/utils/utils.module'
 import { JwtAuthGuard, RolesGuard } from './modules/auth/guards'
+import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.module';
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        transport: process.stdout.isTTY
-          ? {
-              target: 'pino-pretty',
-            }
-          : undefined,
-      },
-    }),
     ConfigModule,
     PrismaModule,
     AuthModule,
     UtilsModule,
+    CacheInMemoryModule,
   ],
   controllers: [AppController],
   providers: [
@@ -43,4 +35,4 @@ import { JwtAuthGuard, RolesGuard } from './modules/auth/guards'
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

@@ -2,8 +2,9 @@ import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards } from '@n
 import { AuthService } from './auth.service'
 import { CredentialsDto } from './auth.dto'
 import { FastifyReply } from 'fastify'
-import { Public, UserAgent } from 'src/shared/decorators'
+import { AccessToken, Public, User, UserAgent } from 'src/shared/decorators'
 import { RefreshToken } from './decorators'
+import { IPayload } from 'src/shared/interfaces'
 export const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken'
 
 @Controller()
@@ -54,8 +55,13 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Res({ passthrough: true }) reply: FastifyReply, @RefreshToken() cookieToken: string) {
+  logout(
+    @Res({ passthrough: true }) reply: FastifyReply,
+    @RefreshToken() cookieToken: string,
+    @User() user: IPayload,
+    @AccessToken() accessToken: string
+  ) {
     reply.clearCookie(REFRESH_TOKEN_COOKIE_NAME)
-    return this.authService.logout(cookieToken)
+    return this.authService.logout(user.sessionId, accessToken, cookieToken)
   }
 }

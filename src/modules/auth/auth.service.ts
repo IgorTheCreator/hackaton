@@ -14,6 +14,7 @@ import { UtilsService } from 'src/shared/utils/utils.service'
 import { ConfigService } from 'src/core/config/config.service'
 import { IPayload } from 'src/shared/interfaces'
 import { JwtService } from '@nestjs/jwt'
+import { CacheInMemoryService } from 'src/core/cache-in-memory/cache-in-memory.service'
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly utils: UtilsService,
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
+    private readonly cacheInMemoryService: CacheInMemoryService
   ) { }
 
   async signup({ email, password }: CredentialsDto) {
@@ -39,7 +41,6 @@ export class AuthService {
     const { id } = await this.prisma.user.create({
       data: {
         email,
-        username: email,
         password: hashedPassword,
       },
       select: {
@@ -67,7 +68,7 @@ export class AuthService {
     if (!isValid) {
       throw new BadRequestException('Invalid credentials')
     }
-    const payload: IPayload = { id: existingUser.id, role: existingUser.role }
+    const payload: IPayload = { id: existingUser.id, role: existingUser.role, sessionId: `${existingUser.id}-${Date.now()}` }
     const accessToken = await this.jwt.signAsync(payload)
     const refreshToken = await this.getRefreshToken(existingUser.id, userAgent)
     return { accessToken, refreshToken }
@@ -136,7 +137,8 @@ export class AuthService {
     return newRefreshToken
   }
 
-  async logout(refreshToken: string) {
+  async logout(sessionId: string, accessToken: string, refreshToken: string) {
+    this.cacheInMemoryService.cache.set(accessToken, sessionId)
     await this.prisma.refreshToken
       .delete({
         where: {

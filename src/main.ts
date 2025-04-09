@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { Logger } from 'nestjs-pino'
 import { patchNestJsSwagger } from 'nestjs-zod'
 import * as fastifyHelmet from '@fastify/helmet'
 import * as fastifyCookie from '@fastify/cookie'
@@ -10,14 +9,12 @@ import { ConfigService } from './core/config/config.service'
 
 async function build() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
-    bufferLogs: true,
     cors: {
       origin: '*'
     }
   })
   await app.register(fastifyHelmet)
   await app.register(fastifyCookie)
-  app.useLogger(app.get(Logger))
   const config = new DocumentBuilder()
     .setTitle('UpMe')
     .setDescription('Platform for supporting creative peoples')
