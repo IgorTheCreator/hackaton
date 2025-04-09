@@ -5,8 +5,10 @@ import { FastifyReply } from 'fastify'
 import { AccessToken, Public, User, UserAgent } from 'src/shared/decorators'
 import { RefreshToken } from './decorators'
 import { IPayload } from 'src/shared/interfaces'
+import { ApiBearerAuth } from '@nestjs/swagger'
 export const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken'
 
+@ApiBearerAuth()
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
