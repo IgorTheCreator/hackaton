@@ -10,8 +10,17 @@ import { ZodValidationPipe } from 'nestjs-zod'
 import { UtilsModule } from './shared/utils/utils.module'
 import { JwtAuthGuard, LogoutGuard, RolesGuard } from './modules/auth/guards'
 import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.module'
+import { ProjectModule } from './modules/project/project.module'
+
 @Module({
-  imports: [ConfigModule, PrismaModule, AuthModule, UtilsModule, CacheInMemoryModule],
+  imports: [
+    ConfigModule,
+    PrismaModule,
+    AuthModule,
+    UtilsModule,
+    CacheInMemoryModule,
+    ProjectModule
+  ],
   controllers: [AppController],
   providers: [
     AppService,
@@ -33,4 +42,4 @@ import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.modu
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

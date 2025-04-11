@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(uuid())
-  email        String         @unique
-  password     String
-  refreshToken RefreshToken[]
-  role         Role           @default(USER)
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
-  isBanned     Boolean        @default(false)
+  id               String           @id @default(uuid())
+  email            String           @unique
+  password         String
+  refreshToken     RefreshToken[]
+  role             Role             @default(USER)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  isBanned         Boolean          @default(false) @map("is_bunned")
+  project          Project[]
+  transaction      Transaction[]
+  userAchievements UserAchievment[]
 
   @@map("users")
 }
@@ -27,13 +30,68 @@ enum Role {
 
 model RefreshToken {
   token     String   @unique @default(uuid())
-  expiresAt DateTime
+  expiresAt DateTime @map("expires_at")
   userAgent String   @map("user_agent")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   user   User   @relation(fields: [userId], references: [id])
-  userId String
+  userId String @map("user_id")
 
   @@map("refresh_tokens")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  purpose     String
+  tasks       String[]
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   @map("user_id")
+  esg         Esg      @relation(fields: [esgId], references: [id])
+
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  transactions Transaction[]
+  esgId        String
+}
+
+model Esg {
+  id        String @id @default(uuid())
+  projectId String @map("project_id")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  Project   Project[]
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  amount    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+  project   Project  @relation(fields: [projectId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  projectId String
+}
+
+model Achievment {
+  id               String           @id @default(uuid())
+  userAchievements UserAchievment[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model UserAchievment {
+  id           String      @id @default(uuid())
+  user         User?       @relation(fields: [userId], references: [id])
+  userId       String?     @map("user_id")
+  achievment   Achievment? @relation(fields: [achievmentId], references: [id])
+  achievmentId String?     @map("achievment_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
