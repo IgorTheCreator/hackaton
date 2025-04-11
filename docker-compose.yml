@@ -1,4 +1,33 @@
 services:
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    volumes:
+      - minio-data:/data
+    ports:
+      - ${MINIO_API}:9000
+      - ${MINIO_WEB}:9001
+    restart: unless-stopped
+    networks:
+      - app_network
+  redis_queue:
+    image: redis:latest
+    container_name: redis_queue
+    restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD --maxmemory 100mb --maxmemory-policy volatile-lru"
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - redis-data:/data
+    networks:
+      - app_network
+
   test_db:
     image: postgres:latest
     container_name: test_db
@@ -18,7 +47,6 @@ services:
     build: .
     container_name: server
     restart: always
-   
     networks:
       - app_network
 
@@ -34,6 +62,7 @@ services:
 
     depends_on:
       - test_db
+      - redis_queue
 
     volumes:
       - server:/data/app
@@ -41,6 +70,11 @@ services:
 volumes:
   data_db:
   server:
+  redis-data:
+    name: redis-data
+  minio-data:
 
 networks:
   app_network:
+  redis-network:
+    driver: bridge

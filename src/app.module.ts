@@ -11,7 +11,7 @@ import { UtilsModule } from './shared/utils/utils.module'
 import { JwtAuthGuard, LogoutGuard, RolesGuard } from './modules/auth/guards'
 import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.module'
 import { ProjectModule } from './modules/project/project.module'
-
+import { MinioModule } from './core/minio/minio.module'
 @Module({
   imports: [
     ConfigModule,
@@ -19,7 +19,8 @@ import { ProjectModule } from './modules/project/project.module'
     AuthModule,
     UtilsModule,
     CacheInMemoryModule,
-    ProjectModule
+    ProjectModule,
+    MinioModule,
   ],
   controllers: [AppController],
   providers: [
@@ -42,4 +43,4 @@ import { ProjectModule } from './modules/project/project.module'
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}
