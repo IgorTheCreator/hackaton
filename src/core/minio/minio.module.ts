@@ -1,9 +1,8 @@
 import * as Minio from 'minio'
-import { Global, Module } from '@nestjs/common';
-import { MinioService } from './minio.service';
-import { ConfigService } from '../config/config.service';
-import { ConfigModule } from '../config/config.module';
-
+import { Global, Module } from '@nestjs/common'
+import { MinioService } from './minio.service'
+import { ConfigService } from '../config/config.service'
+import { ConfigModule } from '../config/config.module'
 
 @Global()
 @Module({
@@ -12,13 +11,18 @@ import { ConfigModule } from '../config/config.module';
     {
       provide: 'MINIO',
       inject: [ConfigService],
-      useFactory: () => {
+      useFactory: (config: ConfigService) => {
         return new Minio.Client({
-
+          port: config.MINIO_API,
+          accessKey: config.MINIO_USER,
+          secretKey: config.MINIO_PASSWORD,
+          useSSL: false,
+          endPoint: config.MINIO_HOST,
         })
-      }
+      },
     },
-    MinioService],
+    MinioService,
+  ],
   exports: [MinioService],
 })
-export class MinioModule { }
+export class MinioModule {}
