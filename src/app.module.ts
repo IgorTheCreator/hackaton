@@ -12,6 +12,7 @@ import { JwtAuthGuard, LogoutGuard, RolesGuard } from './modules/auth/guards'
 import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.module'
 import { ProjectModule } from './modules/project/project.module'
 import { MinioModule } from './core/minio/minio.module'
+import { RedisModule } from './core/redis/redis.module'
 @Module({
   imports: [
     ConfigModule,
@@ -21,6 +22,7 @@ import { MinioModule } from './core/minio/minio.module'
     CacheInMemoryModule,
     ProjectModule,
     MinioModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [
