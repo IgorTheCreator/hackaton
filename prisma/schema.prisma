@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id               String           @id @default(uuid())
-  name             String?
+  name             String?          @default("Незнакомец")
   co2Economy       Float            @default(0) @map("co2_economy")
   rating           Int              @default(0)
   email            String           @unique
@@ -49,16 +49,18 @@ model Project {
   title         String
   description   String
   purpose       String
+  type          ProjectType
+  location      String
   tasks         Task[]
   user          User          @relation(fields: [userId], references: [id])
   userId        String        @map("user_id")
-  esg           Esg           @relation(fields: [esgId], references: [id])
   purposeAmount Int           @map("purpose_amount")
+  currentAmount Int           @default(0) @map("current_amount")
   endDate       DateTime      @map("end_date")
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
   transactions  Transaction[]
-  esgId         String
+  esg           Esg?
 }
 
 model Task {
@@ -69,13 +71,93 @@ model Task {
   projectId   String?  @map("project_id")
 }
 
-model Esg {
-  id        String @id @default(uuid())
-  projectId String @map("project_id")
+enum EsgRatingCategory {
+  A
+  B
+  C
+  D
+}
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  projects  Project[]
+model Esg {
+  // Уникальный идентификатор записи ESG-рейтинга (генерируется автоматически как UUID)
+  id String @id @default(uuid())
+
+  ratingDate DateTime
+
+  // Идентификатор проекта, к которому привязан этот ESG-рейтинг (уникален, так как один проект — один рейтинг)
+  projectId  String   @unique @map("project_id")
+
+  // Связь с моделью Project (указывает, к какому проекту относится этот рейтинг)
+  project Project @relation(fields: [projectId], references: [id])
+
+  // Итоговый ESG-балл (0–100), отражающий общую оценку проекта по экологическим, социальным и управленческим критериям
+  overallScore Float? @map("overall_score")
+
+  // Балл за экологическую категорию (0–50), показывающий вклад экологических метрик в рейтинг
+  environmentalScore Float? @map("environmental_score")
+
+  // Балл за социальную категорию (0–30), отражающий влияние проекта на общество
+  socialScore Float? @map("social_score")
+
+  // Балл за управленческую категорию (0–20), оценивающий прозрачность и управление проектом
+  governanceScore Float? @map("governance_score")
+
+  // Категория рейтинга (A, B, C, D), упрощающая восприятие: A (80–100), B (60–79), C (40–59), D (<40)
+  ratingCategory EsgRatingCategory? @map("rating_category")
+
+  // Количество сниженных выбросов CO2 в тоннах (экологический показатель, опционально)
+  co2Reduction Float? @map("co2_reduction")
+
+  // Количество посаженных деревьев (экологический показатель, опционально)
+  treesPlanted Int? @map("trees_planted")
+
+  // Объём сохранённой или очищенной воды в кубометрах (экологический показатель, опционально)
+  waterSaved Float? @map("water_saved")
+
+  // Объём переработанных или предотвращённых отходов в тоннах (экологический показатель, опционально)
+  wasteRecycled Float? @map("waste_recycled")
+
+  // Площадь восстановленной земли в гектарах (экологический показатель, опционально)
+  landRestored Float? @map("land_restored")
+
+  // Используется ли возобновляемая энергия в проекте (например, солнечные панели), по умолчанию false
+  renewableEnergyUsed Boolean @default(false) @map("renewable_energy_used")
+
+  // Минимизируется ли потребление воды в проекте, по умолчанию false
+  waterMinimized Boolean @default(false) @map("water_minimized")
+
+  // Качественное описание влияния на биоразнообразие (например, "Поддержка среды для птиц"), опционально
+  biodiversityImpact String? @map("biodiversity_impact")
+
+  // Количество созданных рабочих мест (социальный показатель, опционально)
+  jobsCreated Int? @map("jobs_created")
+
+  // Количество вовлечённых местных жителей (социальный показатель, опционально)
+  communityEngagement Int? @map("community_engagement")
+
+  // Описание улучшения доступа к ресурсам (например, "Чистая вода для 200 семей"), опционально
+  resourceAccess String? @map("resource_access")
+
+  // Количество участников образовательных программ по экологии (социальный показатель, опционально)
+  educationPrograms Int? @map("education_programs")
+
+  // Готовность публиковать финансовую отчётность (управленческий показатель), по умолчанию false
+  financialTransparency Boolean @default(false) @map("financial_transparency")
+
+  // Планируются ли регулярные отчёты о прогрессе проекта (управленческий показатель), по умолчанию false
+  regularReports Boolean @default(false) @map("regular_reports")
+
+  // Наличие плана управления экологическими рисками (управленческий показатель), по умолчанию false
+  riskManagement Boolean @default(false) @map("risk_management")
+
+  // Вовлечение стейкхолдеров (например, местных властей или НКО) в проект, по умолчанию false
+  stakeholderEngagement Boolean @default(false) @map("stakeholder_engagement")
+
+  // Дата и время создания записи ESG-рейтинга, автоматически устанавливается при создании
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Дата и время последнего обновления записи, автоматически обновляется при изменении
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
 
 model Transaction {
@@ -101,6 +183,15 @@ model Achievment {
 enum AchievmentType {
   money
   co2
+}
+
+enum ProjectType {
+  TreePlanting
+  WaterCleanup
+  RenewableEnergy
+  WasteRecycling
+  Biodiversity
+  Other
 }
 
 model UserAchievment {
