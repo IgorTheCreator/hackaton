@@ -10,8 +10,18 @@ import { ZodValidationPipe } from 'nestjs-zod'
 import { UtilsModule } from './shared/utils/utils.module'
 import { JwtAuthGuard, LogoutGuard, RolesGuard } from './modules/auth/guards'
 import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.module'
+import { ProjectModule } from './modules/project/project.module'
+
 import { MinioModule } from './core/minio/minio.module';
 @Module({
+  imports: [
+    ConfigModule,
+    PrismaModule,
+    AuthModule,
+    UtilsModule,
+    CacheInMemoryModule,
+    ProjectModule
+  ],
   imports: [ConfigModule, PrismaModule, AuthModule, UtilsModule, CacheInMemoryModule, MinioModule],
   controllers: [AppController],
   providers: [
@@ -34,4 +44,4 @@ import { MinioModule } from './core/minio/minio.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
