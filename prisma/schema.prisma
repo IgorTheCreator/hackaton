@@ -9,15 +9,18 @@ datasource db {
 
 model User {
   id               String           @id @default(uuid())
+  name             String
+  co2Economy       Float            @map("co2_economy")
+  rating           Int
   email            String           @unique
   password         String
-  refreshToken     RefreshToken[]
+  refreshTokens    RefreshToken[]
   role             Role             @default(USER)
   createdAt        DateTime         @default(now()) @map("created_at")
   updatedAt        DateTime         @updatedAt @map("updated_at")
   isBanned         Boolean          @default(false) @map("is_bunned")
-  project          Project[]
-  transaction      Transaction[]
+  projects         Project[]
+  transactions     Transaction[]
   userAchievements UserAchievment[]
 
   @@map("users")
@@ -42,19 +45,19 @@ model RefreshToken {
 }
 
 model Project {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  purpose     String
-  tasks       String[]
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String   @map("user_id")
-  esg         Esg      @relation(fields: [esgId], references: [id])
-
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  transactions Transaction[]
-  esgId        String
+  id            String        @id @default(uuid())
+  title         String
+  description   String
+  purpose       String
+  tasks         String[]
+  user          User          @relation(fields: [userId], references: [id])
+  userId        String        @map("user_id")
+  esg           Esg           @relation(fields: [esgId], references: [id])
+  purposeAmount Int           @map("purpose_amount")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  transactions  Transaction[]
+  esgId         String
 }
 
 model Esg {
@@ -63,7 +66,7 @@ model Esg {
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
-  Project   Project[]
+  projects  Project[]
 }
 
 model Transaction {
@@ -80,9 +83,15 @@ model Transaction {
 model Achievment {
   id               String           @id @default(uuid())
   userAchievements UserAchievment[]
+  type             AchievmentType
+  value            Float
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+}
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+enum AchievmentType {
+  money
+  co2
 }
 
 model UserAchievment {
