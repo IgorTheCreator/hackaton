@@ -8,6 +8,7 @@ export class ConfigService {
   readonly JWT_SECRET_KEY: string
   readonly JWT_TOKEN_VALID: string
   readonly REFRESH_TOKEN_VALID_DAYS: number
+  readonly REDIS_HOST: string
   readonly REDIS_PORT: number
   readonly REDIS_PASSWORD: string
   readonly MINIO_API: number
@@ -23,6 +24,7 @@ export class ConfigService {
     this.JWT_TOKEN_VALID = this.config.getOrThrow<string>('JWT_TOKEN_VALID')
     this.REFRESH_TOKEN_VALID_DAYS = +this.config.getOrThrow<number>('REFRESH_TOKEN_VALID_DAYS')
 
+    this.REDIS_HOST = this.config.get<string>('REDIS_HOST', 'localhost')
     this.REDIS_PORT = +this.config.getOrThrow<number>('REDIS_PORT')
     this.REDIS_PASSWORD = this.config.getOrThrow<string>('REDIS_PASSWORD')
 
