@@ -19,7 +19,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly cacheInMemoryService: CacheInMemoryService,
-  ) { }
+  ) {}
 
   async signup({ email, password }: CredentialsDto, userAgent: string) {
     const existingUser = await this.prisma.user.findUnique({

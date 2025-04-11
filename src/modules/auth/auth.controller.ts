@@ -19,7 +19,7 @@ export const REFRESH_TOKEN_COOKIE_NAME = 'refreshToken'
 @ApiBearerAuth()
 @Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   // Регистрация
   @Public()

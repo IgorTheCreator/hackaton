@@ -15,7 +15,7 @@ async function build() {
   const config = new DocumentBuilder().addBearerAuth().build()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('docs', app, documentFactory, {
-    jsonDocumentUrl: 'docs/json'
+    jsonDocumentUrl: 'docs/json',
   })
   patchNestJsSwagger()
   app.enableShutdownHooks()
