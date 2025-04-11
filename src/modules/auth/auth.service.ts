@@ -19,7 +19,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
     private readonly cacheInMemoryService: CacheInMemoryService,
-  ) {}
+  ) { }
 
   async signup({ email, password }: CredentialsDto, userAgent: string) {
     const existingUser = await this.prisma.user.findUnique({
@@ -99,7 +99,7 @@ export class AuthService {
     return { accessToken, refreshToken: newRefreshToken }
   }
 
-  async getRefreshToken(userId: string, userAgent: string) {
+  private async getRefreshToken(userId: string, userAgent: string) {
     const _token = await this.prisma.refreshToken.findFirst({
       where: {
         userId,
