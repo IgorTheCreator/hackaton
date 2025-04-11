@@ -5,7 +5,7 @@ import { patchNestJsSwagger } from 'nestjs-zod'
 import * as fastifyCookie from '@fastify/cookie'
 import { AppModule } from './app.module'
 
-async function build() {
+async function build () {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
     cors: {
       origin: '*',
@@ -13,17 +13,18 @@ async function build() {
   })
   await app.register(fastifyCookie)
   const config = new DocumentBuilder().addBearerAuth().build()
+  patchNestJsSwagger()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('docs', app, documentFactory, {
     jsonDocumentUrl: 'docs/json',
   })
-  patchNestJsSwagger()
+
   app.enableShutdownHooks()
 
   return app
 }
 
-async function bootstrap() {
+async function bootstrap () {
   const app = await build()
   await app.listen(3000, '0.0.0.0')
 }
