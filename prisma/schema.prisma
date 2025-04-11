@@ -9,9 +9,9 @@ datasource db {
 
 model User {
   id               String           @id @default(uuid())
-  name             String
-  co2Economy       Float            @map("co2_economy")
-  rating           Int
+  name             String?
+  co2Economy       Float            @default(0) @map("co2_economy")
+  rating           Int              @default(0)
   email            String           @unique
   password         String
   refreshTokens    RefreshToken[]

@@ -13,6 +13,7 @@ import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.modu
 import { ProjectModule } from './modules/project/project.module'
 import { MinioModule } from './core/minio/minio.module'
 import { RedisModule } from './core/redis/redis.module'
+import { UserModule } from './modules/user/user.module';
 @Module({
   imports: [
     ConfigModule,
@@ -23,6 +24,7 @@ import { RedisModule } from './core/redis/redis.module'
     ProjectModule,
     MinioModule,
     RedisModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [
