@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 import { CreateProjectDto } from './project.dto';
+import { ListDto } from 'src/shared/dtos';
 
 @Injectable()
 export class ProjectService {
@@ -19,7 +20,9 @@ export class ProjectService {
         location: dto.location,
         endDate: dto.endDate,
         purpose: dto.purpose,
-        purposeAmount: dto.purposeAmount,
+        goalFunding: dto.goalFunding,
+        shortDescription: dto.shortDescription,
+        startDate: dto.startDate,
         esg: {
           create: {
             ratingDate: new Date(),
@@ -186,15 +189,15 @@ export class ProjectService {
     return 'D';
   }
 
-  async list() {
+  async list({ limit: take, offset: skip }: ListDto) {
     const list = await this.prisma.project.findMany({
-      // take,
-      // skip,
+      take,
+      skip,
       select: {
         title: true,
         description: true,
-        currentAmount: true,
-        purposeAmount: true,
+        currentFunding: true,
+        goalFunding: true,
         type: true,
         endDate: true,
         esg: {

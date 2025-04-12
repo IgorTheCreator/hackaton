@@ -45,22 +45,34 @@ model RefreshToken {
 }
 
 model Project {
-  id            String        @id @default(uuid())
-  title         String
-  description   String
-  purpose       String
-  type          ProjectType
-  location      String
-  tasks         Task[]
-  user          User          @relation(fields: [userId], references: [id])
-  userId        String        @map("user_id")
-  purposeAmount Int           @map("purpose_amount")
-  currentAmount Int           @default(0) @map("current_amount")
-  endDate       DateTime      @map("end_date")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-  transactions  Transaction[]
-  esg           Esg?
+  id               String      @id @default(uuid())
+  title            String
+  description      String
+  shortDescription String      @map("short_description")
+  purpose          String
+  type             ProjectType
+  location         String
+  tasks            Task[]
+  user             User        @relation(fields: [userId], references: [id])
+  userId           String      @map("user_id")
+  goalFunding      Int         @map("goal_funding")
+  currentFunding   Int         @default(0) @map("current_funding")
+  endDate          DateTime    @map("end_date")
+  startDate        DateTime    @map("start_date")
+
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  transactions Transaction[]
+  esg          Esg?
+  socialMedia  SocialMedia[]
+}
+
+model SocialMedia {
+  id        String   @id @default(uuid())
+  name      String
+  link      String
+  project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?  @map("project_id")
 }
 
 model Task {
@@ -85,7 +97,7 @@ model Esg {
   ratingDate DateTime
 
   // Идентификатор проекта, к которому привязан этот ESG-рейтинг (уникален, так как один проект — один рейтинг)
-  projectId  String   @unique @map("project_id")
+  projectId String @unique @map("project_id")
 
   // Связь с моделью Project (указывает, к какому проекту относится этот рейтинг)
   project Project @relation(fields: [projectId], references: [id])
