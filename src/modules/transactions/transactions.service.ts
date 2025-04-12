@@ -13,7 +13,7 @@ import { TransactionType } from '@prisma/client'
 @Injectable()
 export class TransactionsService {
   private readonly logger = new Logger(TransactionsService.name)
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async list(userId: string, { limit: take, offset: skip }: ListDto) {
     const transactions = await this.prisma.transaction.findMany({
@@ -30,21 +30,20 @@ export class TransactionsService {
           },
         },
         amount: true,
-        // type
-        // status
+        type: true,
         updatedAt: true,
       },
     })
-    const transactionsResponse = transactions.map((transaction) => {
-      return {
-        id: transaction.id,
-        project: transaction.project?.title,
-        date: transaction.updatedAt,
-        // type
-        // status
-      }
-    })
-    return { transactions: transactionsResponse }
+    // const transactionsResponse = transactions.map((transaction) => {
+    //   return {
+    //     id: transaction.id,
+    //     project: transaction.project?.title,
+    //     date: transaction.updatedAt,
+    //     // type
+    //     // status
+    //   }
+    // })
+    return { transactions }
   }
 
   async get(userId: string, { id }: IdDto) {
@@ -57,7 +56,7 @@ export class TransactionsService {
     return { transaction }
   }
 
-  async createTransaction(userId: string, { amount, projectId, type }: CreateTransactionDto) {
+  async create(userId: string, { amount, projectId, type }: CreateTransactionDto) {
     try {
       const transaction = await this.prisma.$transaction(async (prisma) => {
         let transaction
@@ -79,6 +78,7 @@ export class TransactionsService {
               balance: {
                 decrement: amount,
               },
+
             },
             select: {
               balance: true,
@@ -111,7 +111,7 @@ export class TransactionsService {
               userId,
             },
           })
-          await prisma.user.update({
+          const user = await prisma.user.update({
             where: {
               id: userId,
             },
@@ -119,8 +119,23 @@ export class TransactionsService {
               balance: {
                 increment: amount,
               },
+              progress: {
+                increment: amount
+              }
             },
           })
+          const currentLevel = Math.floor(user.progress / 1000);
+
+          if (currentLevel !== user.level) {
+            await prisma.user.update({
+              where: {
+                id: user.id
+              },
+              data: {
+                level: currentLevel
+              }
+            })
+          }
         }
 
         return { transaction }

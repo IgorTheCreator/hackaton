@@ -34,6 +34,6 @@ export class TransactionsController {
 
   @Post("create")
   create(@User() user: IPayload, @Body() body: CreateTransactionDto) {
-    return this.transactionsService.createTransaction(user.id, body)
+    return this.transactionsService.create(user.id, body)
   }
 }
