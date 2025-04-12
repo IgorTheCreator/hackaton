@@ -27,29 +27,27 @@ export class UserService {
         balance: true,
         co2Reduced: true,
         plasticReduced: true,
-        treesSaved: true
-      }
-    },
+        treesSaved: true,
+      },
     })
-
-  const totalTransactionsSum = await this.prisma.transaction.aggregate({
-    _sum: {
-      amount: true,
-    },
-    where: {
-      userId: id,
-    },
-  })
+    const totalTransactionsSum = await this.prisma.transaction.aggregate({
+      _sum: {
+        amount: true,
+      },
+      where: {
+        userId: id,
+      },
+    })
     return { user: { ...user, totalTransactionsSum } }
   }
 
   async uploadImage(userId: string, buffer: Buffer) {
-  await this.minioService.minio.putObject('users', `${userId}.webp`, buffer)
-  return { success: true }
-}
+    await this.minioService.minio.putObject('users', `${userId}.webp`, buffer)
+    return { success: true }
+  }
 
   async getImage({ id }: IdDto) {
-  const image = await this.minioService.minio.getObject('users', `${id}.webp`)
-  return image
-}
+    const image = await this.minioService.minio.getObject('users', `${id}.webp`)
+    return image
+  }
 }
