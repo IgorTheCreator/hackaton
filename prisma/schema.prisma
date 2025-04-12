@@ -26,6 +26,7 @@ model User {
   projects       Project[]
   transactions   Transaction[]
   achievments    String[]
+  balance        Int            @default(0)
 
   @@map("users")
 }
