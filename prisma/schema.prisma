@@ -10,11 +10,10 @@ datasource db {
 model User {
   id             String         @id @default(uuid())
   name           String?        @default("Незнакомец")
-  co2Economy     Float          @default(0) @map("co2_economy")
   level          Int            @default(0)
   progress       Int            @default(0)
   treesSaved     Float          @default(0)
-  co2Reduced     Float          @default(0)
+  co2Reduced     Float          @default(0) @map("co2_reduced")
   plasticReduced Float          @default(0)
   email          String         @unique
   password       String
