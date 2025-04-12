@@ -8,10 +8,7 @@ import { MemoryStorageFile } from '@blazity/nest-file-fastify'
 
 @Injectable()
 export class ProjectService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly minioService: MinioService,
-  ) { }
+  constructor(private prisma: PrismaService) { }
 
   async create (userId: string, dto: CreateProjectDto) {
     const { environmentalScore, socialScore, governanceScore, overallScore } =
