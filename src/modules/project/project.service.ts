@@ -5,7 +5,7 @@ import { ListDto } from 'src/shared/dtos';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(userId: string, dto: CreateProjectDto) {
     const { environmentalScore, socialScore, governanceScore, overallScore } =

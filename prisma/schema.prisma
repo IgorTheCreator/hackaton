@@ -8,20 +8,24 @@ datasource db {
 }
 
 model User {
-  id               String           @id @default(uuid())
-  name             String?          @default("Незнакомец")
-  co2Economy       Float            @default(0) @map("co2_economy")
-  rating           Int              @default(0)
-  email            String           @unique
-  password         String
-  refreshTokens    RefreshToken[]
-  role             Role             @default(USER)
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @updatedAt @map("updated_at")
-  isBanned         Boolean          @default(false) @map("is_bunned")
-  projects         Project[]
-  transactions     Transaction[]
-  userAchievements UserAchievment[]
+  id             String         @id @default(uuid())
+  name           String?        @default("Незнакомец")
+  co2Economy     Float          @default(0) @map("co2_economy")
+  level          Int            @default(0)
+  progress       Int            @default(0)
+  treesSaved     Float          @default(0)
+  co2Reduced     Float          @default(0)
+  plasticReduced Float          @default(0)
+  email          String         @unique
+  password       String
+  refreshTokens  RefreshToken[]
+  role           Role           @default(USER)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  isBanned       Boolean        @default(false) @map("is_bunned")
+  projects       Project[]
+  transactions   Transaction[]
+  achievments    String[]
 
   @@map("users")
 }
@@ -183,20 +187,6 @@ model Transaction {
   projectId String
 }
 
-model Achievment {
-  id               String           @id @default(uuid())
-  userAchievements UserAchievment[]
-  type             AchievmentType
-  value            Float
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @updatedAt @map("updated_at")
-}
-
-enum AchievmentType {
-  money
-  co2
-}
-
 enum ProjectType {
   TreePlanting
   WaterCleanup
@@ -204,15 +194,4 @@ enum ProjectType {
   WasteRecycling
   Biodiversity
   Other
-}
-
-model UserAchievment {
-  id           String      @id @default(uuid())
-  user         User?       @relation(fields: [userId], references: [id])
-  userId       String?     @map("user_id")
-  achievment   Achievment? @relation(fields: [achievmentId], references: [id])
-  achievmentId String?     @map("achievment_id")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 }

@@ -4,7 +4,7 @@ import { IPayload } from 'src/shared/interfaces'
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async profile({ id, role }: IPayload) {
     const user = await this.prisma.user.findUnique({
@@ -18,6 +18,7 @@ export class UserService {
         co2Economy: true,
         rating: true,
         name: true,
+
       },
     })
 
