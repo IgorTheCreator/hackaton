@@ -3,12 +3,14 @@ import { PrismaService } from 'src/core/prisma/prisma.service'
 import { CreateProjectDto } from './project.dto'
 import { IdDto, ListDto } from 'src/shared/dtos'
 import { EsgRatingCategory } from '@prisma/client'
+import { MinioService } from 'src/core/minio/minio.service'
+import { MemoryStorageFile } from '@blazity/nest-file-fastify'
 
 @Injectable()
 export class ProjectService {
   constructor(private prisma: PrismaService) { }
 
-  async create(userId: string, dto: CreateProjectDto) {
+  async create (userId: string, dto: CreateProjectDto) {
     const { environmentalScore, socialScore, governanceScore, overallScore } =
       this.calculateESGRating(dto)
 
@@ -54,7 +56,7 @@ export class ProjectService {
     }
   }
 
-  private calculateESGRating(dto: CreateProjectDto) {
+  private calculateESGRating (dto: CreateProjectDto) {
     const environmentalScore = this.calculateEnvironmentalScore(dto)
     const socialScore = this.calculateSocialScore(dto)
     const governanceScore = this.calculateGovernanceScore(dto)
@@ -69,7 +71,7 @@ export class ProjectService {
     }
   }
 
-  private calculateEnvironmentalScore(dto: CreateProjectDto): number {
+  private calculateEnvironmentalScore (dto: CreateProjectDto): number {
     let score = 0
 
     if (dto.environmental.mainImpact) {
@@ -110,7 +112,7 @@ export class ProjectService {
     return Math.min(score, 50)
   }
 
-  private calculateSocialScore(dto: CreateProjectDto): number {
+  private calculateSocialScore (dto: CreateProjectDto): number {
     let score = 0
 
     score += this.calculateScore(
@@ -129,7 +131,7 @@ export class ProjectService {
     return Math.min(score, 30)
   }
 
-  private calculateGovernanceScore(dto: CreateProjectDto): number {
+  private calculateGovernanceScore (dto: CreateProjectDto): number {
     let score = 0
 
     score += this.addBooleanScore(dto.governance.financialTransparency, 5)
@@ -140,7 +142,7 @@ export class ProjectService {
     return Math.min(score, 20)
   }
 
-  private extractEnvironmentalData(dto: CreateProjectDto) {
+  private extractEnvironmentalData (dto: CreateProjectDto) {
     const { mainImpact } = dto.environmental
     return {
       co2Reduction:
@@ -161,7 +163,7 @@ export class ProjectService {
     }
   }
 
-  private extractSocialData(dto: CreateProjectDto) {
+  private extractSocialData (dto: CreateProjectDto) {
     return {
       jobsCreated: dto.social.jobsCreated?.enabled ? dto.social.jobsCreated.count : null,
       communityEngagement: dto.social.communityEngagement?.enabled
@@ -174,7 +176,7 @@ export class ProjectService {
     }
   }
 
-  private extractGovernanceData(dto: CreateProjectDto) {
+  private extractGovernanceData (dto: CreateProjectDto) {
     return {
       financialTransparency: dto.governance.financialTransparency || false,
       regularReports: dto.governance.regularReports || false,
@@ -183,22 +185,22 @@ export class ProjectService {
     }
   }
 
-  private calculateScore(value: number, divisor: number, maxScore: number): number {
+  private calculateScore (value: number, divisor: number, maxScore: number): number {
     return Math.min(Math.floor(value / divisor), maxScore)
   }
 
-  private addBooleanScore(condition: boolean | undefined, score: number): number {
+  private addBooleanScore (condition: boolean | undefined, score: number): number {
     return condition ? score : 0
   }
 
-  private getRatingCategory(score: number): EsgRatingCategory {
+  private getRatingCategory (score: number): EsgRatingCategory {
     if (score >= 80) return EsgRatingCategory.A
     if (score >= 60) return EsgRatingCategory.B
     if (score >= 40) return EsgRatingCategory.C
     return EsgRatingCategory.D
   }
 
-  async list({ limit: take, offset: skip }: ListDto) {
+  async list ({ limit: take, offset: skip }: ListDto) {
     let list = await this.prisma.project.findMany({
       take,
       skip,
@@ -244,12 +246,17 @@ export class ProjectService {
     return { list }
   }
 
-  async get({ id }: IdDto) {
+  async get ({ id }: IdDto) {
     const project = await this.prisma.project.findUnique({
       where: {
         id,
       },
     })
     return { project }
+  }
+
+  async uploadImage ({ id }: IdDto, image: MemoryStorageFile) {
+    const a = await this.minioService.minio.putObject('projects', `${id}.png`, image.buffer)
+    return a
   }
 }
