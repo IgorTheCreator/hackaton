@@ -15,12 +15,15 @@ export class UserService {
       select: {
         id: true,
         email: true,
-        co2Economy: true,
         level: true,
         progress: true,
         name: true,
-
-      },
+        achievments: true,
+        balance: true,
+        co2Reduced: true,
+        plasticReduced: true,
+        treesSaved: true
+      }
     })
 
     const totalTransactionsSum = await this.prisma.transaction.aggregate({
