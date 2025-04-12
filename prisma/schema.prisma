@@ -22,6 +22,7 @@ model User {
   projects         Project[]
   transactions     Transaction[]
   userAchievements UserAchievment[]
+  balance          Int              @default(0)
 
   @@map("users")
 }
@@ -173,14 +174,20 @@ model Esg {
 }
 
 model Transaction {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   amount    Int
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @map("user_id")
-  project   Project  @relation(fields: [projectId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  projectId String
+  user      User            @relation(fields: [userId], references: [id])
+  userId    String          @map("user_id")
+  project   Project?        @relation(fields: [projectId], references: [id])
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  projectId String?
+  type      TransactionType
+}
+
+enum TransactionType {
+  donation
+  refill
 }
 
 model Achievment {
