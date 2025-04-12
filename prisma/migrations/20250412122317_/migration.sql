@@ -41,17 +41,29 @@ CREATE TABLE "Project" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "short_description" TEXT NOT NULL,
     "purpose" TEXT NOT NULL,
     "type" "ProjectType" NOT NULL,
     "location" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "purpose_amount" INTEGER NOT NULL,
-    "current_amount" INTEGER NOT NULL DEFAULT 0,
+    "goal_funding" INTEGER NOT NULL,
+    "current_funding" INTEGER NOT NULL DEFAULT 0,
     "end_date" TIMESTAMP(3) NOT NULL,
+    "start_date" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SocialMedia" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "link" TEXT NOT NULL,
+    "project_id" TEXT,
+
+    CONSTRAINT "SocialMedia_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -144,6 +156,9 @@ ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "Project" ADD CONSTRAINT "Project_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SocialMedia" ADD CONSTRAINT "SocialMedia_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Task" ADD CONSTRAINT "Task_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;

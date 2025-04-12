@@ -23,13 +23,27 @@ export class TransactionsService {
       },
       select: {
         id: true,
-        projectId: true,
+        project: {
+          select: {
+            title: true,
+          },
+        },
         amount: true,
+        // type
+        // status
         updatedAt: true,
       },
     })
-
-    return { transactions }
+    const transactionsResponse = transactions.map((transaction) => {
+      return {
+        id: transaction.id,
+        project: transaction.project.title,
+        date: transaction.updatedAt,
+        // type
+        // status
+      }
+    })
+    return { transactions: transactionsResponse }
   }
 
   async get(userId: string, { id }: IdDto) {
@@ -57,6 +71,8 @@ export class TransactionsService {
             projectId,
             userId,
             // обновление суммы в project
+            // type
+            // status: 'completed'
           },
         })
         return { transaction }
