@@ -5,7 +5,7 @@ CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 CREATE TYPE "EsgRatingCategory" AS ENUM ('A', 'B', 'C', 'D');
 
 -- CreateEnum
-CREATE TYPE "AchievmentType" AS ENUM ('money', 'co2');
+CREATE TYPE "TransactionType" AS ENUM ('donation', 'refill');
 
 -- CreateEnum
 CREATE TYPE "ProjectType" AS ENUM ('TreePlanting', 'WaterCleanup', 'RenewableEnergy', 'WasteRecycling', 'Biodiversity', 'Other');
@@ -15,13 +15,19 @@ CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "name" TEXT DEFAULT 'Незнакомец',
     "co2_economy" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "rating" INTEGER NOT NULL DEFAULT 0,
+    "level" INTEGER NOT NULL DEFAULT 0,
+    "progress" INTEGER NOT NULL DEFAULT 0,
+    "treesSaved" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "co2Reduced" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "plasticReduced" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'USER',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "is_bunned" BOOLEAN NOT NULL DEFAULT false,
+    "achievments" TEXT[],
+    "balance" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -115,31 +121,10 @@ CREATE TABLE "Transaction" (
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "projectId" TEXT NOT NULL,
+    "projectId" TEXT,
+    "type" "TransactionType" NOT NULL,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Achievment" (
-    "id" TEXT NOT NULL,
-    "type" "AchievmentType" NOT NULL,
-    "value" DOUBLE PRECISION NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Achievment_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "UserAchievment" (
-    "id" TEXT NOT NULL,
-    "user_id" TEXT,
-    "achievment_id" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "UserAchievment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -170,10 +155,4 @@ ALTER TABLE "Esg" ADD CONSTRAINT "Esg_project_id_fkey" FOREIGN KEY ("project_id"
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "UserAchievment" ADD CONSTRAINT "UserAchievment_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "UserAchievment" ADD CONSTRAINT "UserAchievment_achievment_id_fkey" FOREIGN KEY ("achievment_id") REFERENCES "Achievment"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;

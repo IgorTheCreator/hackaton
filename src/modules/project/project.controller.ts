@@ -5,26 +5,27 @@ import {
   Param,
   Post,
   Query,
+  Req,
+  StreamableFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger'
+import { FastifyRequest } from 'fastify'
 import { ProjectService } from './project.service'
 import { CreateProjectDto } from './project.dto'
 import { Public, User } from 'src/shared/decorators'
 import { IPayload } from 'src/shared/interfaces'
 import { IdDto, ListDto, ListSwaggerDto } from 'src/shared/dtos'
 import { LogoutGuard } from '../auth/guards'
-import { FileFieldsInterceptor, MemoryStorageFile, StorageFile, UploadedFiles } from '@blazity/nest-file-fastify'
 
 @ApiBearerAuth()
 @Controller('projects')
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) { }
+  constructor(private readonly projectService: ProjectService) {}
 
   @Post('create')
   @UseGuards(LogoutGuard)
-  create (@Body() dto: CreateProjectDto, @User() user: IPayload) {
+  create(@Body() dto: CreateProjectDto, @User() user: IPayload) {
     return this.projectService.create(user.id, dto)
   }
 
@@ -35,7 +36,7 @@ export class ProjectController {
   })
   @Get()
   @Public()
-  list (@Query() query: ListDto) {
+  list(@Query() query: ListDto) {
     return this.projectService.list(query)
   }
 
@@ -46,11 +47,11 @@ export class ProjectController {
     type: String,
   })
   @Public()
-  get (@Param() param: IdDto) {
+  get(@Param() param: IdDto) {
     return this.projectService.get(param)
   }
 
-  @Post('upload-image/:id')
+  @Post(':id/image/')
   @UseGuards(LogoutGuard)
   @ApiParam({
     name: 'id',
@@ -58,12 +59,23 @@ export class ProjectController {
     type: String,
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
-  uploadImage (
-    @Param() param: IdDto,
-    @UploadedFiles()
-    files: { image?: StorageFile },
-  ) {
-    console.log(files)
+  async uploadImage(@User() user: IPayload, @Req() request: FastifyRequest, @Param() param: IdDto) {
+    const file = await request.file()
+    const buffer = await file?.toBuffer()
+    return this.projectService.uploadImage(user.id, param, buffer!)
+  }
+
+  @Get(':id/image')
+  @Public()
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: String,
+  })
+  async getImage(@Param() param: IdDto) {
+    const buffer = await this.projectService.getImage(param)
+    return new StreamableFile(buffer, {
+      type: 'image/webp',
+    })
   }
 }
