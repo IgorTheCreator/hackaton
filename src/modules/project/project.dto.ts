@@ -90,21 +90,21 @@ const GovernanceSchema = z
 
 // Основная схема для всего DTO
 const CreateProjectSchema = z
-    .object({
-        title: z.string().min(1).describe('Название проекта'),
-        purpose: z.string().min(20).describe("Цель проекта"),
-        endDate: z.string().datetime().describe('Дата окончания проекта'),
-        goalFunding: z.number().int().min(500),
-        description: z.string().describe('Описание проекта'),
-        type: ProjectTypeSchema,
-        location: z.string().min(1).describe('Местоположение проекта'),
-        startDate: z.string().datetime().describe('Дата начала проекта'),
-        shortDescription: z.string().min(10).max(200),
-        environmental: EnvironmentalSchema,
-        social: SocialSchema,
-        governance: GovernanceSchema,
-    })
-    .strict()
-    .describe('Данные для создания экологического проекта');
+  .object({
+    title: z.string().min(1).describe('Название проекта'),
+    purpose: z.string().min(20).describe('Цель проекта'),
+    endDate: z.string().datetime().describe('Дата окончания проекта'),
+    goalFunding: z.number().int().min(500),
+    description: z.string().describe('Описание проекта'),
+    type: ProjectTypeSchema,
+    location: z.string().min(1).describe('Местоположение проекта'),
+    startDate: z.string().datetime().describe('Дата начала проекта'),
+    shortDescription: z.string().min(10).max(200),
+    environmental: EnvironmentalSchema,
+    social: SocialSchema,
+    governance: GovernanceSchema,
+  })
+  .strict()
+  .describe('Данные для создания экологического проекта')
 
 export class CreateProjectDto extends createZodDto(CreateProjectSchema) {}

@@ -177,14 +177,20 @@ model Esg {
 }
 
 model Transaction {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   amount    Int
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @map("user_id")
-  project   Project  @relation(fields: [projectId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  projectId String
+  user      User            @relation(fields: [userId], references: [id])
+  userId    String          @map("user_id")
+  project   Project?        @relation(fields: [projectId], references: [id])
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  projectId String?
+  type      TransactionType
+}
+
+enum TransactionType {
+  donation
+  refill
 }
 
 enum ProjectType {

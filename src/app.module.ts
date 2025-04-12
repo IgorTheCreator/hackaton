@@ -8,7 +8,7 @@ import { AuthModule } from './modules/auth/auth.module'
 import { APP_GUARD, APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { UtilsModule } from './shared/utils/utils.module'
-import { JwtAuthGuard, LogoutGuard, RolesGuard } from './modules/auth/guards'
+import { JwtAuthGuard, RolesGuard } from './modules/auth/guards'
 import { CacheInMemoryModule } from './core/cache-in-memory/cache-in-memory.module'
 import { ProjectModule } from './modules/project/project.module'
 import { MinioModule } from './core/minio/minio.module'
@@ -42,10 +42,6 @@ import { TransactionsModule } from './modules/transactions/transactions.module'
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: LogoutGuard,
     },
   ],
 })

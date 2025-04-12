@@ -16,7 +16,8 @@ export class UserService {
         id: true,
         email: true,
         co2Economy: true,
-        rating: true,
+        level: true,
+        progress: true,
         name: true,
 
       },

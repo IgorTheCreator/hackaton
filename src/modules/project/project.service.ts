@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/core/prisma/prisma.service';
-import { CreateProjectDto } from './project.dto';
-import { ListDto } from 'src/shared/dtos';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from 'src/core/prisma/prisma.service'
+import { CreateProjectDto } from './project.dto'
+import { IdDto, ListDto } from 'src/shared/dtos'
+import { EsgRatingCategory } from '@prisma/client'
 
 @Injectable()
 export class ProjectService {
@@ -30,6 +31,7 @@ export class ProjectService {
             environmentalScore,
             socialScore,
             governanceScore,
+            ratingCategory: this.getRatingCategory(overallScore),
             ...this.extractEnvironmentalData(dto),
             ...this.extractSocialData(dto),
             ...this.extractGovernanceData(dto),
@@ -189,24 +191,36 @@ export class ProjectService {
     return condition ? score : 0
   }
 
-  private getRatingCategory(score: number): string {
-    if (score >= 80) return 'A'
-    if (score >= 60) return 'B'
-    if (score >= 40) return 'C'
-    return 'D'
+  private getRatingCategory(score: number): EsgRatingCategory {
+    if (score >= 80) return EsgRatingCategory.A
+    if (score >= 60) return EsgRatingCategory.B
+    if (score >= 40) return EsgRatingCategory.C
+    return EsgRatingCategory.D
   }
 
   async list({ limit: take, offset: skip }: ListDto) {
-    const list = await this.prisma.project.findMany({
+    let list = await this.prisma.project.findMany({
       take,
       skip,
+      orderBy: {
+        esg: {
+          ratingCategory: 'asc',
+        },
+      },
       select: {
+        id: true,
         title: true,
         description: true,
         currentFunding: true,
         goalFunding: true,
         type: true,
         endDate: true,
+        transactions: {
+          distinct: 'userId',
+          select: {
+            id: true,
+          },
+        },
         esg: {
           select: {
             co2Reduction: true,
@@ -218,6 +232,24 @@ export class ProjectService {
       },
     })
 
+    list = list.map((item: any) => {
+      const donators = item.transactions.length
+      delete item.transactions
+      const data = { ...item, donators }
+      return {
+        ...data,
+      }
+    })
+
     return { list }
+  }
+
+  async get({ id }: IdDto) {
+    const project = await this.prisma.project.findUnique({
+      where: {
+        id,
+      },
+    })
+    return { project }
   }
 }

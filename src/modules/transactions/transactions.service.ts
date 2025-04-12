@@ -8,6 +8,7 @@ import {
 import { PrismaService } from 'src/core/prisma/prisma.service'
 import { IdDto, ListDto } from 'src/shared/dtos'
 import { CreateTransactionDto } from './transactions.dto'
+import { TransactionType } from '@prisma/client'
 
 @Injectable()
 export class TransactionsService {
@@ -23,13 +24,27 @@ export class TransactionsService {
       },
       select: {
         id: true,
-        projectId: true,
+        project: {
+          select: {
+            title: true,
+          },
+        },
         amount: true,
+        // type
+        // status
         updatedAt: true,
       },
     })
-
-    return { transactions }
+    const transactionsResponse = transactions.map((transaction) => {
+      return {
+        id: transaction.id,
+        project: transaction.project?.title,
+        date: transaction.updatedAt,
+        // type
+        // status
+      }
+    })
+    return { transactions: transactionsResponse }
   }
 
   async get(userId: string, { id }: IdDto) {
@@ -42,23 +57,72 @@ export class TransactionsService {
     return { transaction }
   }
 
-  async createTransaction(userId: string, { amount, projectId }: CreateTransactionDto) {
+  async createTransaction(userId: string, { amount, projectId, type }: CreateTransactionDto) {
     try {
       const transaction = await this.prisma.$transaction(async (prisma) => {
-        const project = await prisma.project.findUnique({
-          where: {
-            id: projectId,
-          },
-        })
-        if (!project) throw new BadRequestException('Project does not exists')
-        const transaction = await this.prisma.transaction.create({
-          data: {
-            amount,
-            projectId,
-            userId,
-            // обновление суммы в project
-          },
-        })
+        let transaction
+        if (type === TransactionType.donation) {
+          const project = await prisma.project.findUnique({
+            where: {
+              id: projectId ?? '-1',
+              endDate: {
+                gte: new Date(),
+              },
+            },
+          })
+          if (!project) throw new BadRequestException('Project does not exists')
+          const user = await prisma.user.update({
+            where: {
+              id: userId,
+            },
+            data: {
+              balance: {
+                decrement: amount,
+              },
+            },
+            select: {
+              balance: true,
+            },
+          })
+          if (user.balance < 0) throw new BadRequestException('Not Enough Money')
+          transaction = await this.prisma.transaction.create({
+            data: {
+              amount,
+              projectId,
+              userId,
+              type,
+            },
+          })
+          await prisma.project.update({
+            where: {
+              id: projectId,
+            },
+            data: {
+              currentFunding: {
+                increment: amount,
+              },
+            },
+          })
+        } else if (type === TransactionType.refill) {
+          transaction = await prisma.transaction.create({
+            data: {
+              amount,
+              type,
+              userId,
+            },
+          })
+          await prisma.user.update({
+            where: {
+              id: userId,
+            },
+            data: {
+              balance: {
+                increment: amount,
+              },
+            },
+          })
+        }
+
         return { transaction }
       })
       return transaction
