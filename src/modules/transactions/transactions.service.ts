@@ -13,9 +13,9 @@ import { TransactionType } from '@prisma/client'
 @Injectable()
 export class TransactionsService {
   private readonly logger = new Logger(TransactionsService.name)
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  async list (userId: string, { limit: take, offset: skip }: ListDto) {
+  async list(userId: string, { limit: take, offset: skip }: ListDto) {
     const transactions = await this.prisma.transaction.findMany({
       take,
       skip,
@@ -47,7 +47,7 @@ export class TransactionsService {
     return { transactions: transactionsResponse }
   }
 
-  async get (userId: string, { id }: IdDto) {
+  async get(userId: string, { id }: IdDto) {
     const transaction = await this.prisma.transaction.findUnique({
       where: {
         id,
@@ -57,7 +57,7 @@ export class TransactionsService {
     return { transaction }
   }
 
-  async createTransaction (userId: string, { amount, projectId, type }: CreateTransactionDto) {
+  async createTransaction(userId: string, { amount, projectId, type }: CreateTransactionDto) {
     try {
       const transaction = await this.prisma.$transaction(async (prisma) => {
         let transaction

@@ -8,4 +8,4 @@ const CreateTransactionSchema = z.object({
   type: z.nativeEnum(TransactionType),
 })
 
-export class CreateTransactionDto extends createZodDto(CreateTransactionSchema) { }
+export class CreateTransactionDto extends createZodDto(CreateTransactionSchema) {}
