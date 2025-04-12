@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/core/prisma/prisma.service'
 import { CreateProjectDto } from './project.dto'
-import { ListDto } from 'src/shared/dtos'
+import { IdDto, ListDto } from 'src/shared/dtos'
 import { EsgRatingCategory } from '@prisma/client'
 
 @Injectable()
@@ -242,5 +242,14 @@ export class ProjectService {
     })
 
     return { list }
+  }
+
+  async get({ id }: IdDto) {
+    const project = await this.prisma.project.findUnique({
+      where: {
+        id,
+      },
+    })
+    return { project }
   }
 }
