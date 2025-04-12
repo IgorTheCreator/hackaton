@@ -5,7 +5,7 @@ import { patchNestJsSwagger } from 'nestjs-zod'
 import * as fastifyCookie from '@fastify/cookie'
 import { AppModule } from './app.module'
 
-async function build () {
+async function build() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
     cors: {
       origin: '*',
@@ -24,7 +24,7 @@ async function build () {
   return app
 }
 
-async function bootstrap () {
+async function bootstrap() {
   const app = await build()
   await app.listen(3000, '0.0.0.0')
 }

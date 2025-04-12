@@ -12,9 +12,9 @@ import { CreateTransactionDto } from './transactions.dto'
 @Injectable()
 export class TransactionsService {
   private readonly logger = new Logger(TransactionsService.name)
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  async list (userId: string, { limit: take, offset: skip }: ListDto) {
+  async list(userId: string, { limit: take, offset: skip }: ListDto) {
     const transactions = await this.prisma.transaction.findMany({
       take,
       skip,
@@ -32,17 +32,17 @@ export class TransactionsService {
     return { transactions }
   }
 
-  async get (userId: string, { id }: IdDto) {
+  async get(userId: string, { id }: IdDto) {
     const transaction = await this.prisma.transaction.findUnique({
       where: {
         id,
-        userId
-      }
+        userId,
+      },
     })
     return { transaction }
   }
 
-  async createTransaction (userId: string, { amount, projectId }: CreateTransactionDto) {
+  async createTransaction(userId: string, { amount, projectId }: CreateTransactionDto) {
     try {
       const transaction = await this.prisma.$transaction(async (prisma) => {
         const project = await prisma.project.findUnique({

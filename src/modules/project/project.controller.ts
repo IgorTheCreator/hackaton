@@ -6,17 +6,17 @@ import { User } from 'src/shared/decorators'
 import { IPayload } from 'src/shared/interfaces'
 
 @ApiBearerAuth()
-@Controller("projects")
+@Controller('projects')
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) { }
+  constructor(private readonly projectService: ProjectService) {}
 
-  @Post("create")
-  create (@Body() dto: CreateProjectDto, @User() user: IPayload) {
+  @Post('create')
+  create(@Body() dto: CreateProjectDto, @User() user: IPayload) {
     return this.projectService.create(user.id, dto)
   }
 
   @Get()
-  list () {
+  list() {
     return this.projectService.list()
   }
 }
