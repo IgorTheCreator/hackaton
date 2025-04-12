@@ -256,7 +256,7 @@ export class ProjectService {
   }
 
   async uploadImage ({ id }: IdDto, image: MemoryStorageFile) {
-    const a = await this.minioService.minio.putObject('projects', `${id}.png`, image.buffer)
-    return a
+    // const a = await this.minioService.minio.putObject('projects', `${id}.png`, image.buffer)
+    // return a
   }
 }
