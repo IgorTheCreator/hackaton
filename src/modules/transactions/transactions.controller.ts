@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { TransactionsService } from './transactions.service'
-import { User } from 'src/shared/decorators'
+import { Public, User } from 'src/shared/decorators'
 import { IPayload } from 'src/shared/interfaces'
 import { IdDto, ListDto, ListSwaggerDto } from 'src/shared/dtos'
 import { CreateTransactionDto } from './transactions.dto'
@@ -35,5 +35,11 @@ export class TransactionsController {
   @Post()
   create(@User() user: IPayload, @Body() body: CreateTransactionDto) {
     return this.transactionsService.createTransaction(user.id, body)
+  }
+
+  @Public()
+  @Get('total-invested')
+  totalInvested() {
+    return this.transactionsService.totalInvested()
   }
 }

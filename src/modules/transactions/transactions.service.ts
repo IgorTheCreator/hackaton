@@ -132,4 +132,13 @@ export class TransactionsService {
       throw new InternalServerErrorException('Something went wrong')
     }
   }
+
+  async totalInvested() {
+    const totalInvested = await this.prisma.transaction.aggregate({
+      _sum: {
+        amount: true,
+      },
+    })
+    return { totalInvested: totalInvested._sum.amount ?? 0 }
+  }
 }
