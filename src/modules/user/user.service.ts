@@ -28,6 +28,7 @@ export class UserService {
         co2Reduced: true,
         plasticReduced: true,
         treesSaved: true,
+        createdAt: true
       },
     })
     const totalTransactionsSum = await this.prisma.transaction.aggregate({
@@ -38,7 +39,7 @@ export class UserService {
         userId: id,
       },
     })
-    return { user: { ...user, totalTransactionsSum } }
+    return { user: { ...user, totalTransactionsSum, badges: ["Спаситель планеты", "Переработчик пластика", "Водоочиститель"] } }
   }
 
   async uploadImage(userId: string, buffer: Buffer) {

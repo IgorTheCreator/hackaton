@@ -10,6 +10,7 @@ datasource db {
 model User {
   id             String         @id @default(uuid())
   name           String?        @default("Незнакомец")
+  bio            String?
   level          Int            @default(0)
   levelProgress  Int            @default(0) @map("level_progress")
   treesSaved     Float          @default(0)
