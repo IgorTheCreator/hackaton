@@ -8,7 +8,7 @@ import {
 import { PrismaService } from 'src/core/prisma/prisma.service'
 import { IdDto, ListDto } from 'src/shared/dtos'
 import { CreateTransactionDto } from './transactions.dto'
-import { TransactionType } from '@prisma/client'
+import { ProjectType, TransactionType } from '@prisma/client'
 
 @Injectable()
 export class TransactionsService {
@@ -34,15 +34,7 @@ export class TransactionsService {
         updatedAt: true,
       },
     })
-    // const transactionsResponse = transactions.map((transaction) => {
-    //   return {
-    //     id: transaction.id,
-    //     project: transaction.project?.title,
-    //     date: transaction.updatedAt,
-    //     // type
-    //     // status
-    //   }
-    // })
+
     return { transactions }
   }
 
@@ -68,8 +60,25 @@ export class TransactionsService {
                 gte: new Date(),
               },
             },
+            include: {
+              esg: true
+            }
           })
           if (!project) throw new BadRequestException('Project does not exists')
+          let savedValueData
+          if (project.type == ProjectType.TreePlanting) {
+            savedValueData = { treesSaved: { increment: (project.esg?.treesPlanted || 0) * amount / project.goalFunding } }
+          }
+          else if (project.type == ProjectType.WaterCleanup) {
+            savedValueData = { waterCleaned: { increment: project.esg?.waterSaved || 0 * amount / project.goalFunding } }
+          }
+          else if (project.type == ProjectType.WasteRecycling) {
+            savedValueData = { plasticReduced: { increment: project.esg?.wasteRecycled || 0 * amount / project.goalFunding } }
+          }
+          else if (project.type == ProjectType.RenewableEnergy) {
+            savedValueData = { co2Reduced: { increment: project.esg?.co2Reduction || 0 * amount / project.goalFunding } }
+          }
+
           const user = await prisma.user.update({
             where: {
               id: userId,
@@ -78,7 +87,7 @@ export class TransactionsService {
               balance: {
                 decrement: amount,
               },
-
+              ...savedValueData
             },
             select: {
               balance: true,
@@ -119,12 +128,12 @@ export class TransactionsService {
               balance: {
                 increment: amount,
               },
-              progress: {
+              levelProgress: {
                 increment: amount
               }
             },
           })
-          const currentLevel = Math.floor(user.progress / 1000);
+          const currentLevel = Math.floor(user.levelProgress / 1000);
 
           if (currentLevel !== user.level) {
             await prisma.user.update({
@@ -150,6 +159,9 @@ export class TransactionsService {
 
   async totalInvested() {
     const totalInvested = await this.prisma.transaction.aggregate({
+      where: {
+        type: TransactionType.refill
+      },
       _sum: {
         amount: true,
       },

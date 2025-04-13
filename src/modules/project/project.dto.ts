@@ -8,7 +8,6 @@ const ProjectTypeSchema = z
     'WaterCleanup',
     'RenewableEnergy',
     'WasteRecycling',
-    'Biodiversity',
     'Other',
   ])
   .describe('Тип проекта')
@@ -107,4 +106,10 @@ const CreateProjectSchema = z
   .strict()
   .describe('Данные для создания экологического проекта')
 
-export class CreateProjectDto extends createZodDto(CreateProjectSchema) {}
+export class CreateProjectDto extends createZodDto(CreateProjectSchema) { }
+
+
+const SetProjectStatusSchema = z.object({
+  isActive: z.boolean()
+})
+export class SetProjectStatusDto extends createZodDto(SetProjectStatusSchema) { }

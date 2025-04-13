@@ -12,16 +12,17 @@ import {
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger'
 import { FastifyRequest } from 'fastify'
 import { ProjectService } from './project.service'
-import { CreateProjectDto } from './project.dto'
-import { Public, User } from 'src/shared/decorators'
+import { CreateProjectDto, SetProjectStatusDto } from './project.dto'
+import { Public, Roles, User } from 'src/shared/decorators'
 import { IPayload } from 'src/shared/interfaces'
 import { IdDto, ListDto, ListSwaggerDto } from 'src/shared/dtos'
-import { LogoutGuard } from '../auth/guards'
+import { LogoutGuard, RolesGuard } from '../auth/guards'
+import { Role } from '@prisma/client'
 
 @ApiBearerAuth()
 @Controller('projects')
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) {}
+  constructor(private readonly projectService: ProjectService) { }
 
   @Post('create')
   @UseGuards(LogoutGuard)
@@ -77,5 +78,12 @@ export class ProjectController {
     return new StreamableFile(buffer, {
       type: 'image/webp',
     })
+  }
+
+  @Post(":id/set-status")
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  async setStatus(@Body() body: SetProjectStatusDto, @Param() param: IdDto) {
+    return this.projectService.setStatus(param, body)
   }
 }

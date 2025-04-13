@@ -11,10 +11,11 @@ model User {
   id             String         @id @default(uuid())
   name           String?        @default("Незнакомец")
   level          Int            @default(0)
-  progress       Int            @default(0)
+  levelProgress  Int            @default(0) @map("level_progress")
   treesSaved     Float          @default(0)
   co2Reduced     Float          @default(0) @map("co2_reduced")
   plasticReduced Float          @default(0)
+  waterCleaned   Float          @default(0) @map("water_cleaned")
   email          String         @unique
   password       String
   refreshTokens  RefreshToken[]
@@ -24,7 +25,7 @@ model User {
   isBanned       Boolean        @default(false) @map("is_bunned")
   projects       Project[]
   transactions   Transaction[]
-  achievments    String[]
+  badges         String[]
   balance        Int            @default(0)
 
   @@map("users")
@@ -64,6 +65,7 @@ model Project {
   endDate          DateTime    @map("end_date")
   startDate        DateTime    @map("start_date")
 
+  isActive     Boolean       @default(false) @map("is_active") //для админа, чтобы избавиться от спама
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   transactions Transaction[]
@@ -198,6 +200,5 @@ enum ProjectType {
   WaterCleanup
   RenewableEnergy
   WasteRecycling
-  Biodiversity
   Other
 }

@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/core/prisma/prisma.service'
-import { CreateProjectDto } from './project.dto'
+import { CreateProjectDto, SetProjectStatusDto } from './project.dto'
 import { IdDto, ListDto } from 'src/shared/dtos'
 import { EsgRatingCategory } from '@prisma/client'
 import { MinioService } from 'src/core/minio/minio.service'
@@ -10,7 +10,7 @@ export class ProjectService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly minioService: MinioService,
-  ) {}
+  ) { }
 
   async create(userId: string, dto: CreateProjectDto) {
     const { environmentalScore, socialScore, governanceScore, overallScore } =
@@ -204,6 +204,9 @@ export class ProjectService {
 
   async list({ limit: take, offset: skip }: ListDto) {
     let list = await this.prisma.project.findMany({
+      where: {
+        isActive: true
+      },
       take,
       skip,
       orderBy: {
@@ -233,6 +236,7 @@ export class ProjectService {
             ratingDate: true,
           },
         },
+        
       },
     })
 
@@ -272,5 +276,16 @@ export class ProjectService {
   async getImage({ id }: IdDto) {
     const image = await this.minioService.minio.getObject('projects', `${id}.webp`)
     return image
+  }
+
+  async setStatus({ id }: IdDto, { isActive }: SetProjectStatusDto) {
+    await this.prisma.project.update({
+      where: {
+        id
+      },
+      data: {
+        isActive
+      }
+    })
   }
 }

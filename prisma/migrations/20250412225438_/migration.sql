@@ -14,11 +14,10 @@ CREATE TYPE "ProjectType" AS ENUM ('TreePlanting', 'WaterCleanup', 'RenewableEne
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "name" TEXT DEFAULT 'Незнакомец',
-    "co2_economy" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "level" INTEGER NOT NULL DEFAULT 0,
     "progress" INTEGER NOT NULL DEFAULT 0,
     "treesSaved" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "co2Reduced" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "co2_reduced" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "plasticReduced" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -56,6 +55,7 @@ CREATE TABLE "Project" (
     "current_funding" INTEGER NOT NULL DEFAULT 0,
     "end_date" TIMESTAMP(3) NOT NULL,
     "start_date" TIMESTAMP(3) NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
