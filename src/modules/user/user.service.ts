@@ -9,7 +9,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly minioService: MinioService,
-  ) { }
+  ) {}
 
   async profile({ id, role }: IPayload) {
     const user = await this.prisma.user.findUnique({
@@ -28,7 +28,7 @@ export class UserService {
         co2Reduced: true,
         plasticReduced: true,
         treesSaved: true,
-        createdAt: true
+        createdAt: true,
       },
     })
     const totalTransactionsSum = await this.prisma.transaction.aggregate({
@@ -39,7 +39,14 @@ export class UserService {
         userId: id,
       },
     })
-    return { user: { ...user, levelProgress: Math.floor(((user?.levelProgress || 0) % 1000) / 1000 * 100), totalTransactionsSum, badges: ["Спаситель планеты", "Переработчик пластика", "Водоочиститель"] } }
+    return {
+      user: {
+        ...user,
+        levelProgress: Math.floor((((user?.levelProgress || 0) % 1000) / 1000) * 100),
+        totalTransactionsSum,
+        badges: ['Спаситель планеты', 'Переработчик пластика', 'Водоочиститель'],
+      },
+    }
   }
 
   async uploadImage(userId: string, buffer: Buffer) {

@@ -22,7 +22,7 @@ import { Role } from '@prisma/client'
 @ApiBearerAuth()
 @Controller('projects')
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) { }
+  constructor(private readonly projectService: ProjectService) {}
 
   @Post('create')
   @UseGuards(LogoutGuard)
@@ -80,7 +80,7 @@ export class ProjectController {
     })
   }
 
-  @Post(":id/set-status")
+  @Post(':id/set-status')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
   async setStatus(@Body() body: SetProjectStatusDto, @Param() param: IdDto) {

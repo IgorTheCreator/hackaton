@@ -10,7 +10,7 @@ export class ProjectService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly minioService: MinioService,
-  ) { }
+  ) {}
 
   async create(userId: string, dto: CreateProjectDto) {
     const { environmentalScore, socialScore, governanceScore, overallScore } =
@@ -236,7 +236,6 @@ export class ProjectService {
             ratingDate: true,
           },
         },
-        
       },
     })
 
@@ -253,12 +252,37 @@ export class ProjectService {
   }
 
   async get({ id }: IdDto) {
-    const project = await this.prisma.project.findUnique({
+    const project: any = await this.prisma.project.findUnique({
       where: {
         id,
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        currentFunding: true,
+        goalFunding: true,
+        type: true,
+        endDate: true,
+        transactions: {
+          distinct: 'userId',
+          select: {
+            id: true,
+          },
+        },
+        esg: {
+          select: {
+            co2Reduction: true,
+            overallScore: true,
+            ratingCategory: true,
+            ratingDate: true,
+          },
+        },
+      },
     })
-    return { project }
+    const donators = project!.transactions.length
+    delete project!.transactions
+    return { project: { ...project, donators } }
   }
 
   async uploadImage(userId: string, { id }: IdDto, buffer: Buffer) {
@@ -281,11 +305,11 @@ export class ProjectService {
   async setStatus({ id }: IdDto, { isActive }: SetProjectStatusDto) {
     await this.prisma.project.update({
       where: {
-        id
+        id,
       },
       data: {
-        isActive
-      }
+        isActive,
+      },
     })
   }
 }

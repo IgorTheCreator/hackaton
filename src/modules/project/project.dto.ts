@@ -3,13 +3,7 @@ import { z } from 'zod'
 
 // Перечисления для типа проекта
 const ProjectTypeSchema = z
-  .enum([
-    'TreePlanting',
-    'WaterCleanup',
-    'RenewableEnergy',
-    'WasteRecycling',
-    'Other',
-  ])
+  .enum(['TreePlanting', 'WaterCleanup', 'RenewableEnergy', 'WasteRecycling', 'Other'])
   .describe('Тип проекта')
 
 // Перечисления для основного экологического эффекта
@@ -106,10 +100,9 @@ const CreateProjectSchema = z
   .strict()
   .describe('Данные для создания экологического проекта')
 
-export class CreateProjectDto extends createZodDto(CreateProjectSchema) { }
-
+export class CreateProjectDto extends createZodDto(CreateProjectSchema) {}
 
 const SetProjectStatusSchema = z.object({
-  isActive: z.boolean()
+  isActive: z.boolean(),
 })
-export class SetProjectStatusDto extends createZodDto(SetProjectStatusSchema) { }
+export class SetProjectStatusDto extends createZodDto(SetProjectStatusSchema) {}
