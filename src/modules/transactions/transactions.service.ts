@@ -22,6 +22,9 @@ export class TransactionsService {
       where: {
         userId,
       },
+      orderBy: {
+        createdAt: "desc"
+      },
       select: {
         id: true,
         project: {
