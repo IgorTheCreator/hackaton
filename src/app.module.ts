@@ -15,7 +15,7 @@ import { MinioModule } from './core/minio/minio.module'
 import { RedisModule } from './core/redis/redis.module'
 import { UserModule } from './modules/user/user.module'
 import { TransactionsModule } from './modules/transactions/transactions.module'
-import { SocketModule } from './modules/socket/socket.module';
+import { SocketModule } from './modules/socket/socket.module'
 @Module({
   imports: [
     ConfigModule,

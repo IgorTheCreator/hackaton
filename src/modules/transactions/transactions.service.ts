@@ -13,7 +13,7 @@ import { ProjectType, TransactionType } from '@prisma/client'
 @Injectable()
 export class TransactionsService {
   private readonly logger = new Logger(TransactionsService.name)
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async list(userId: string, { limit: take, offset: skip }: ListDto) {
     const transactions = await this.prisma.transaction.findMany({
@@ -64,22 +64,35 @@ export class TransactionsService {
               },
             },
             include: {
-              esg: true
-            }
+              esg: true,
+            },
           })
           if (!project) throw new BadRequestException('Project does not exists')
           let savedValueData
           if (project.type == ProjectType.TreePlanting) {
-            savedValueData = { treesSaved: { increment: (project.esg?.treesPlanted || 0) * amount / project.goalFunding } }
-          }
-          else if (project.type == ProjectType.WaterCleanup) {
-            savedValueData = { waterCleaned: { increment: project.esg?.waterSaved || 0 * amount / project.goalFunding } }
-          }
-          else if (project.type == ProjectType.WasteRecycling) {
-            savedValueData = { plasticReduced: { increment: project.esg?.wasteRecycled || 0 * amount / project.goalFunding } }
-          }
-          else if (project.type == ProjectType.RenewableEnergy) {
-            savedValueData = { co2Reduced: { increment: project.esg?.co2Reduction || 0 * amount / project.goalFunding } }
+            savedValueData = {
+              treesSaved: {
+                increment: ((project.esg?.treesPlanted || 0) * amount) / project.goalFunding,
+              },
+            }
+          } else if (project.type == ProjectType.WaterCleanup) {
+            savedValueData = {
+              waterCleaned: {
+                increment: project.esg?.waterSaved || (0 * amount) / project.goalFunding,
+              },
+            }
+          } else if (project.type == ProjectType.WasteRecycling) {
+            savedValueData = {
+              plasticReduced: {
+                increment: project.esg?.wasteRecycled || (0 * amount) / project.goalFunding,
+              },
+            }
+          } else if (project.type == ProjectType.RenewableEnergy) {
+            savedValueData = {
+              co2Reduced: {
+                increment: project.esg?.co2Reduction || (0 * amount) / project.goalFunding,
+              },
+            }
           }
 
           const user = await prisma.user.update({
@@ -90,7 +103,7 @@ export class TransactionsService {
               balance: {
                 decrement: amount,
               },
-              ...savedValueData
+              ...savedValueData,
             },
             select: {
               balance: true,
@@ -132,20 +145,20 @@ export class TransactionsService {
                 increment: amount,
               },
               levelProgress: {
-                increment: amount
-              }
+                increment: amount,
+              },
             },
           })
-          const currentLevel = Math.floor(user.levelProgress / 1000);
+          const currentLevel = Math.floor(user.levelProgress / 1000)
 
           if (currentLevel !== user.level) {
             await prisma.user.update({
               where: {
-                id: user.id
+                id: user.id,
               },
               data: {
-                level: currentLevel
-              }
+                level: currentLevel,
+              },
             })
           }
         }
@@ -163,7 +176,7 @@ export class TransactionsService {
   async totalInvested() {
     const totalInvested = await this.prisma.transaction.aggregate({
       where: {
-        type: TransactionType.refill
+        type: TransactionType.refill,
       },
       _sum: {
         amount: true,
