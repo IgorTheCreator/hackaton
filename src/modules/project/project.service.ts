@@ -205,7 +205,7 @@ export class ProjectService {
   async list({ limit: take, offset: skip }: ListDto) {
     let list = await this.prisma.project.findMany({
       where: {
-        isActive: true
+        // isActive: true
       },
       take,
       skip,
